@@ -286,6 +286,7 @@ def organizer_dashboard():
     }), 200
 
 
+
 # --------------------------------
 # ADMIN DASHBOARD
 # --------------------------------
@@ -294,8 +295,93 @@ def organizer_dashboard():
 @role_required("admin")
 def admin_dashboard():
 
+    db = get_db()
+
+    # 1. Retrieve platform-wide user statistics.
+    user_statistics = db.execute("""
+        SELECT
+            COUNT(*) AS total_users,
+            SUM(CASE WHEN role = 'student' THEN 1 ELSE 0 END)
+                AS total_students,
+            SUM(CASE WHEN role = 'organizer' THEN 1 ELSE 0 END)
+                AS total_organizers,
+            SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END)
+                AS total_admins
+        FROM users
+    """).fetchone()
+
+    # 2. Retrieve event statistics.
+    event_statistics = db.execute("""
+        SELECT
+            COUNT(*) AS total_events,
+            COALESCE(SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END), 0)
+            AS approved_events,
+            COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0)
+            AS pending_events,
+            COALESCE(SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END), 0)
+            AS rejected_events,
+            COALESCE(SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END), 0)
+            AS cancelled_events,
+            COALESCE(SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END), 0)
+            AS draft_events
+        FROM events
+    """).fetchone()
+
+    # 3. Retrieve registration statistics.
+    registration_statistics = db.execute("""
+        SELECT
+            COUNT(*) AS total_registrations,
+            COALESCE(SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END), 0)
+            AS confirmed_registrations,
+            COALESCE(SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END), 0)
+            AS cancelled_registrations
+        FROM registrations
+    """).fetchone()
+
+    # 4. Retrieve the five most recently registered users.
+    recent_users = db.execute("""
+        SELECT
+            user_id,
+            name,
+            email,
+            role,
+            created_at
+        FROM users
+        ORDER BY user_id DESC
+        LIMIT 5
+    """).fetchall()
+
+    # 5. Retrieve the five most recently created events.
+    recent_events = db.execute("""
+        SELECT
+            e.event_id,
+            e.title,
+            e.status,
+            e.created_at,
+            u.name AS organizer_name
+        FROM events e
+        JOIN users u
+            ON e.organizer_id = u.user_id
+        ORDER BY e.event_id DESC
+        LIMIT 5
+    """).fetchall()
+
+    # Convert database rows into JSON-compatible dictionaries.
+    dashboard_data = {
+        "users": dict(user_statistics),
+        "events": dict(event_statistics),
+        "registrations": dict(registration_statistics),
+        "recent_users": [
+            dict(row) for row in recent_users
+        ],
+        "recent_events": [
+            dict(row) for row in recent_events
+        ]
+    }
+
     return jsonify({
         "dashboard": "Admin",
-        "message": "Welcome to the Admin Dashboard!",
-        "role": "admin"
+        "message": f"Welcome, {current_user.name}!",
+        "role": current_user.role,
+        "statistics": dashboard_data
     }), 200
