@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, current_app
+from flask_login import current_user
 
 from app.database import get_db
 from app.decorators import role_required
@@ -61,13 +62,103 @@ def health():
 @role_required("student")
 def student_dashboard():
 
+    db = get_db()
+
+    # Retrieve the logged-in student's basic information.
+    student = {
+        "user_id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email,
+        "role": current_user.role
+    }
+
+    # Retrieve all registrations belonging to this student.
+    registrations = db.execute("""
+        SELECT
+            r.registration_id,
+            r.status AS registration_status,
+            r.registered_at,
+            e.event_id,
+            e.title,
+            e.description,
+            e.starts_at,
+            e.ends_at,
+            e.status AS event_status,
+            c.category_name,
+            v.venue_name,
+            v.location AS venue_location
+        FROM registrations r
+        JOIN events e
+            ON r.event_id = e.event_id
+        JOIN categories c
+            ON e.category_id = c.category_id
+        JOIN venues v
+            ON e.venue_id = v.venue_id
+        WHERE r.user_id = ?
+        ORDER BY e.starts_at ASC
+    """, (current_user.id,)).fetchall()
+
+    # Convert database rows into JSON-compatible dictionaries.
+    registered_events = [
+        dict(row) for row in registrations
+    ]
+
+    # Calculate registration statistics.
+    total_registrations = len(registered_events)
+
+    confirmed_registrations = sum(
+        1 for event in registered_events
+        if event["registration_status"] == "confirmed"
+    )
+
+    cancelled_registrations = sum(
+        1 for event in registered_events
+        if event["registration_status"] == "cancelled"
+    )
+
+    # Count upcoming and past confirmed events.
+    time_data = db.execute("""
+        SELECT
+            SUM(
+                CASE
+                    WHEN r.status = 'confirmed'
+                    AND e.status = 'approved'
+                    AND datetime(e.starts_at) >= datetime('now', 'localtime')
+                    THEN 1 ELSE 0
+                END
+            ) AS upcoming_events,
+
+            SUM(
+                CASE
+                    WHEN r.status = 'confirmed'
+                    AND e.status = 'approved'
+                    AND datetime(e.starts_at) < datetime('now', 'localtime')
+                    THEN 1 ELSE 0
+                END
+            ) AS past_events
+
+        FROM registrations r
+        JOIN events e
+            ON r.event_id = e.event_id
+        WHERE r.user_id = ?
+    """, (current_user.id,)).fetchone()
+
+    statistics = {
+        "total_registrations": total_registrations,
+        "confirmed_registrations": confirmed_registrations,
+        "cancelled_registrations": cancelled_registrations,
+        "upcoming_events": time_data["upcoming_events"] or 0,
+        "past_events": time_data["past_events"] or 0
+    }
+
     return jsonify({
-        "dashboard": "Student",
-        "message": "Welcome to the Student Dashboard!",
-        "role": "student"
-    }), 200
-
-
+    "dashboard": "Student",
+    "message": f"Welcome, {current_user.name}!",
+    "role": current_user.role,
+    "student": student,
+    "statistics": statistics,
+    "registered_events": registered_events
+     }), 200
 # --------------------------------
 # ORGANIZER DASHBOARD
 # --------------------------------
