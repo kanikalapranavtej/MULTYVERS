@@ -464,7 +464,7 @@ def test_student_cannot_cancel_event(client):
     event_id = response.get_json()["event_id"]
 
     # Log out the organizer and log in as a student.
-    client.get("/auth/logout")
+    client.post("/auth/logout")
     login_as(client, "student")
 
     response = client.patch(
@@ -524,7 +524,7 @@ def test_organizer_cannot_update_another_organizers_event(client, app):
             VALUES (?, ?, ?, ?)
         """, ("Second Organizer", "second@test.com", password_hash, "organizer"))
 
-    client.get("/auth/logout")
+    client.post("/auth/logout")
     response = client.post("/auth/login", data={
         "email": "second@test.com",
         "password": "password123"
@@ -593,7 +593,7 @@ def test_admin_can_approve_pending_event(client):
     event_id = response.get_json()["event_id"]
 
     # Log out the organizer and log in as admin.
-    client.get("/auth/logout")
+    client.post("/auth/logout")
     login_as(client, "admin")
 
     response = client.patch(
@@ -614,7 +614,7 @@ def test_admin_can_reject_pending_event(client):
 
     event_id = response.get_json()["event_id"]
 
-    client.get("/auth/logout")
+    client.post("/auth/logout")
     login_as(client, "admin")
 
     response = client.patch(
@@ -652,7 +652,7 @@ def test_student_cannot_reject_event(client):
 
     event_id = response.get_json()["event_id"]
 
-    client.get("/auth/logout")
+    client.post("/auth/logout")
     login_as(client, "student")
 
     response = client.patch(
@@ -697,7 +697,7 @@ def test_already_approved_event_cannot_be_rejected(client, app):
             WHERE event_id = ?
         """, (event_id,))
 
-    client.get("/auth/logout")
+    client.post("/auth/logout")
     login_as(client, "admin")
 
     response = client.patch(
@@ -708,3 +708,106 @@ def test_already_approved_event_cannot_be_rejected(client, app):
     assert response.get_json()["error"] == (
         "Only pending events can be reviewed."
     )
+
+
+def test_overlapping_events_at_same_venue_are_rejected(client):
+    login_as(client, "organizer")
+
+    first = valid_event_data()
+    response = client.post("/api/events/", json=first)
+    assert response.status_code == 201
+
+    second = valid_event_data()
+    second["title"] = "Overlapping Workshop"
+    second["starts_at"] = "2027-01-15T11:00:00"
+    second["ends_at"] = "2027-01-15T13:00:00"
+
+    response = client.post("/api/events/", json=second)
+
+    assert response.status_code == 409
+    assert "already booked" in response.get_json()["error"]
+
+
+def test_non_overlapping_events_at_same_venue_are_allowed(client):
+    login_as(client, "organizer")
+
+    first = valid_event_data()
+    response = client.post("/api/events/", json=first)
+    assert response.status_code == 201
+
+    second = valid_event_data()
+    second["title"] = "Afternoon Workshop"
+    second["starts_at"] = "2027-01-15T12:00:00"
+    second["ends_at"] = "2027-01-15T14:00:00"
+
+    response = client.post("/api/events/", json=second)
+
+    assert response.status_code == 201
+
+
+def test_updating_event_into_conflicting_time_is_rejected(client):
+    login_as(client, "organizer")
+
+    first = valid_event_data()
+    response = client.post("/api/events/", json=first)
+    assert response.status_code == 201
+
+    second = valid_event_data()
+    second["title"] = "Second Workshop"
+    second["starts_at"] = "2027-01-15T13:00:00"
+    second["ends_at"] = "2027-01-15T15:00:00"
+
+    response = client.post("/api/events/", json=second)
+    assert response.status_code == 201
+    second_event_id = response.get_json()["event_id"]
+
+    response = client.put(
+        f"/api/events/{second_event_id}",
+        json={
+            "starts_at": "2027-01-15T11:00:00",
+            "ends_at": "2027-01-15T14:00:00"
+        }
+    )
+
+    assert response.status_code == 409
+    assert "already booked" in response.get_json()["error"]
+
+
+def test_admin_cannot_approve_event_with_venue_conflict(client, app):
+    login_as(client, "organizer")
+
+    first = valid_event_data()
+    response = client.post("/api/events/", json=first)
+    assert response.status_code == 201
+
+    second = valid_event_data()
+    second["title"] = "Second Workshop"
+    second["starts_at"] = "2027-01-15T13:00:00"
+    second["ends_at"] = "2027-01-15T15:00:00"
+
+    response = client.post("/api/events/", json=second)
+    assert response.status_code == 201
+    second_event_id = response.get_json()["event_id"]
+
+    # Simulate another booking occupying the second event's time.
+    with sqlite3.connect(app.config["DATABASE"]) as connection:
+        connection.execute("""
+            UPDATE events
+            SET starts_at = ?, ends_at = ?
+            WHERE event_id = ?
+        """, (
+            "2027-01-15T11:00:00",
+            "2027-01-15T13:00:00",
+            second_event_id
+        ))
+        connection.commit()
+
+    client.post("/auth/logout")
+    login_as(client, "admin")
+
+    response = client.patch(
+        f"/api/events/{second_event_id}/approve"
+    )
+
+    assert response.status_code == 409
+    assert "venue is already booked" in response.get_json()["error"]

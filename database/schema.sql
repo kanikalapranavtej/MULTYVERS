@@ -101,3 +101,41 @@ ON registrations(event_id);
 
 CREATE INDEX IF NOT EXISTS idx_registrations_user
 ON registrations(user_id);
+
+-- ==========================================
+-- PHASE A: ATTENDANCE MANAGEMENT
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS attendance (
+    attendance_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    registration_id INTEGER NOT NULL UNIQUE,
+    event_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    marked_by INTEGER,
+    method TEXT NOT NULL DEFAULT 'qr'
+        CHECK(method IN ('qr', 'manual')),
+
+    FOREIGN KEY(registration_id)
+        REFERENCES registrations(registration_id),
+
+    FOREIGN KEY(event_id)
+        REFERENCES events(event_id),
+
+    FOREIGN KEY(user_id)
+        REFERENCES users(user_id),
+
+    FOREIGN KEY(marked_by)
+        REFERENCES users(user_id),
+
+    UNIQUE(event_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_attendance_event
+    ON attendance(event_id);
+
+CREATE INDEX IF NOT EXISTS idx_attendance_user
+    ON attendance(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_attendance_marked_at
+    ON attendance(marked_at);

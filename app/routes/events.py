@@ -56,6 +56,42 @@ def parse_event_datetime(value):
 
     return datetime.fromisoformat(value)
 
+def check_venue_conflict(
+    db, venue_id, starts_at, ends_at, exclude_event_id=None
+):
+    """Return another active event if its venue booking overlaps."""
+
+    query = """
+        SELECT event_id, title, starts_at, ends_at
+        FROM events
+        WHERE venue_id = ?
+          AND status IN ('pending', 'approved')
+    """
+    params = [venue_id]
+
+    if exclude_event_id is not None:
+        query += " AND event_id != ?"
+        params.append(exclude_event_id)
+
+    events = db.execute(query, params).fetchall()
+
+    requested_start = starts_at.astimezone()
+    requested_end = ends_at.astimezone()
+
+    for event in events:
+        existing_start = datetime.fromisoformat(
+            event["starts_at"]
+        ).astimezone()
+
+        existing_end = datetime.fromisoformat(
+            event["ends_at"]
+        ).astimezone()
+
+        if requested_start < existing_end and requested_end > existing_start:
+            return event
+
+    return None
+
 
 # --------------------------------------------------
 # 1. CREATE EVENT
@@ -205,6 +241,18 @@ def create_event():
         return jsonify({
             "error": "Event capacity exceeds venue capacity."
         }), 400
+
+     # Check venue booking conflict
+    conflict = check_venue_conflict(
+        db, venue_id, starts_at, ends_at
+    )
+
+    if conflict:
+        return jsonify({
+            "error": "This venue is already booked during the selected time.",
+            "conflicting_event_id": conflict["event_id"],
+            "conflicting_event_title": conflict["title"]
+        }), 409
 
     # Insert event
     try:
@@ -363,7 +411,7 @@ def get_events():
             "total_pages": (total + per_page - 1) // per_page
         }
     }), 200
- 
+
 @events_bp.route("/<int:event_id>", methods=["GET"])
 def get_event_details(event_id):
     """
@@ -411,8 +459,8 @@ def get_event_details(event_id):
 
     return jsonify({
         "event": dict(event)
-    }), 200    
-    
+    }), 200
+
 @events_bp.route("/<int:event_id>", methods=["PUT"])
 @role_required("organizer")
 def update_event(event_id):
@@ -571,6 +619,22 @@ def update_event(event_id):
             "error": "Event capacity exceeds venue capacity."
         }), 400
 
+        # Check venue booking conflict, excluding this event
+    conflict = check_venue_conflict(
+        db,
+        venue_id,
+        starts_at,
+        ends_at,
+        exclude_event_id=event_id
+    )
+
+    if conflict:
+        return jsonify({
+            "error": "This venue is already booked during the selected time.",
+            "conflicting_event_id": conflict["event_id"],
+            "conflicting_event_title": conflict["title"]
+        }), 409
+
     try:
         db.execute("""
             UPDATE events
@@ -622,7 +686,7 @@ def update_event(event_id):
     except Exception:
         db.rollback()
         raise
-    
+
 @events_bp.route("/<int:event_id>/cancel", methods=["PATCH"])
 @role_required("organizer")
 def cancel_event(event_id):
@@ -689,6 +753,28 @@ def review_event(event_id, new_status):
     """
     db = get_db()
 
+    if new_status == "approved":
+        event = db.execute("""
+            SELECT venue_id, starts_at, ends_at
+            FROM events
+            WHERE event_id = ? AND status = 'pending'
+        """, (event_id,)).fetchone()
+
+        if event is not None:
+            conflict = check_venue_conflict(
+                db,
+                event["venue_id"],
+                datetime.fromisoformat(event["starts_at"]),
+                datetime.fromisoformat(event["ends_at"]),
+                exclude_event_id=event_id
+            )
+
+            if conflict:
+                return jsonify({
+                    "error": "Cannot approve event. The venue is already booked.",
+                    "conflicting_event_id": conflict["event_id"],
+                    "conflicting_event_title": conflict["title"]
+                }), 409
     try:
         cursor = db.execute("""
             UPDATE events
