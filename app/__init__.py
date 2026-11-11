@@ -1,5 +1,4 @@
 from flask import Flask, jsonify
-from app.routes.auth import auth_bp 
 
 from app.config import Config
 from app.extensions import init_extensions
@@ -8,25 +7,24 @@ from app.database import init_app as init_database
 
 def create_app(config_class=Config):
 
-    # Create Flask application
     app = Flask(__name__)
 
-    # Load configuration
     app.config.from_object(config_class)
 
-    # Initialize extensions
     init_extensions(app)
 
-    # Initialize database handling
     init_database(app)
-
-    # Register application routes
+    
     from app.routes.main import main_bp
+    from app.routes.auth import auth_bp
+    from app.routes.events import events_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(events_bp)
 
-    # Handle 404 errors
+     
+    # 404 handler
     @app.errorhandler(404)
     def not_found(error):
 
@@ -34,7 +32,7 @@ def create_app(config_class=Config):
             "error": "Resource not found"
         }), 404
 
-    # Handle internal server errors
+    # 500 handler
     @app.errorhandler(500)
     def internal_error(error):
 
