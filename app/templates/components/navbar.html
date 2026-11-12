@@ -1,0 +1,71 @@
+<header class="site-nav" data-scrolled="false">
+
+    <a class="brand dock-brand"
+       href="{{ url_for('main.home') }}"
+       aria-label="MULTYVERS home">
+
+        <span class="brand-mark">
+            <span></span><span></span><span></span>
+        </span>
+
+        <span>MULTYVERS</span>
+        <small>EVENT UNIVERSE</small>
+    </a>
+
+    <nav class="desktop-nav orbit-dock"
+         aria-label="Primary navigation"
+         data-orbit-dock>
+
+        <a class="dock-item active" href="#events" data-dock-item>
+            <i data-lucide="compass"></i>
+            <span>Explore</span>
+        </a>
+
+        <a class="dock-item" href="#categories" data-dock-item>
+            <i data-lucide="layers"></i>
+            <span>Categories</span>
+        </a>
+
+        <a class="dock-item" href="#how-it-works" data-dock-item>
+            <i data-lucide="orbit"></i>
+            <span>How it works</span>
+        </a>
+
+    </nav>
+
+    <div class="nav-actions">
+
+        <button class="icon-btn"
+                data-theme-toggle
+                aria-label="Toggle light and dark theme">
+            <i data-lucide="sun-moon"></i>
+        </button>
+
+        <a class="nav-login" href="{{ url_for('auth.login') }}">
+            Log in
+        </a>
+
+        <a class="button button-sm"
+           href="{{ url_for('auth.register') }}">
+            Get started
+            <i data-lucide="arrow-up-right"></i>
+        </a>
+
+        <button class="icon-btn mobile-menu-toggle"
+                data-mobile-menu
+                aria-label="Open menu">
+            <i data-lucide="menu"></i>
+        </button>
+
+    </div>
+
+    <div class="mobile-nav" data-mobile-nav>
+        <a href="#events">Explore events</a>
+        <a href="#categories">Categories</a>
+        <a href="#how-it-works">How it works</a>
+        <a class="button" href="{{ url_for('auth.register') }}">
+            Get started
+        </a>
+    </div>
+
+</header>

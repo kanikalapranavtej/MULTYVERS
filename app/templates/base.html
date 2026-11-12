@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}MULTYVERS{% endblock %}</title>
+
+    <meta name="description"
+          content="MULTYVERS connects university communities through unforgettable events.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/multyvers.css') }}">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    {% block nav %}
+        {% include 'components/navbar.html' %}
+    {% endblock %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+        {% include 'components/footer.html' %}
+    {% endblock %}
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="{{ url_for('static', filename='js/multyvers.js') }}"></script>
+
+    {% block scripts %}{% endblock %}
+
+    <script>
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    </script>
+
+</body>
+</html>

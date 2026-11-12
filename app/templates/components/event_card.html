@@ -1,0 +1,33 @@
+{% macro event_card(event) %}
+<article class="event-card reveal">
+    <div class="event-image">
+        <div class="image-overlay"></div>
+        <span class="badge badge-violet">
+            {{ event.category_name }}
+        </span>
+    </div>
+
+    <div class="event-card-body">
+        <div class="eyebrow-row">
+            <span class="event-status">Approved</span>
+        </div>
+
+        <h3>{{ event.title }}</h3>
+
+        <p class="event-meta">
+            <i data-lucide="calendar-days"></i>
+            {{ event.starts_at }}
+        </p>
+
+        <p class="event-meta">
+            <i data-lucide="map-pin"></i>
+            {{ event.venue_name }}, {{ event.location }}
+        </p>
+
+        <div class="event-card-foot">
+            <span>{{ event.organizer_name }}</span>
+            <span>{{ event.registered_count }} registered</span>
+        </div>
+    </div>
+</article>
+{% endmacro %}
