@@ -1,3 +1,4 @@
+from urllib.parse import urljoin, urlparse
 from flask import (
     Blueprint, render_template, request,
     redirect, url_for, flash
@@ -94,6 +95,14 @@ def login():
 
             flash("Welcome back!", "success")
 
+            next_page = request.args.get("next")
+
+            if next_page:
+                target = urlparse(urljoin(request.host_url, next_page))
+
+                if target.scheme in ("http", "https") and target.netloc == request.host:
+                    return redirect(next_page)
+
             return redirect(url_for("main.home"))
 
         flash("Invalid email or password.", "danger")
@@ -102,7 +111,7 @@ def login():
 
 
 # -------------------------------
-# USER LOGOUT
+# USER LOGOU
 # -------------------------------
 
 @auth_bp.route("/logout", methods=["POST"])

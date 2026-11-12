@@ -313,16 +313,14 @@ def get_events():
 
     search = request.args.get("search", "").strip()
     category_id = request.args.get("category_id", "").strip()
+    start_date = request.args.get("start_date", "").strip()
+    end_date = request.args.get("end_date", "").strip()
+    sort = request.args.get("sort", "upcoming").strip().lower()
 
     # Validate pagination
     try:
-        page = parse_positive_integer(
-            request.args.get("page", "1")
-        )
-
-        per_page = parse_positive_integer(
-            request.args.get("per_page", "10")
-        )
+        page = parse_positive_integer(request.args.get("page", "1"))
+        per_page = parse_positive_integer(request.args.get("per_page", "10"))
 
     except ValueError:
         return jsonify({
@@ -334,16 +332,19 @@ def get_events():
             "error": "Maximum per_page value is 100."
         }), 400
 
-    # Only approved events are publicly visible
-    conditions = ["e.status = 'approved'"]
-    parameters = []
+    # Validate sorting
+    sort_options = {
+        "upcoming": "e.starts_at ASC, e.event_id ASC",
+        "latest": "e.created_at DESC, e.event_id DESC",
+        "popular": "registered_count DESC, e.starts_at ASC"
+    }
 
-    # Search by title
-    if search:
-        conditions.append("e.title LIKE ?")
-        parameters.append(f"%{search}%")
+    if sort not in sort_options:
+        return jsonify({
+            "error": "Sort must be upcoming, latest, or popular."
+        }), 400
 
-    # Filter by category
+    # Validate category
     if category_id:
         try:
             category_id = parse_positive_integer(category_id)
@@ -353,8 +354,50 @@ def get_events():
                 "error": "Category ID must be a positive integer."
             }), 400
 
+    # Validate date format
+    for date_value in (start_date, end_date):
+        if date_value:
+            try:
+                datetime.strptime(date_value, "%Y-%m-%d")
+            except ValueError:
+                return jsonify({
+                    "error": "Dates must use YYYY-MM-DD format."
+                }), 400
+
+    # Validate date range
+    if start_date and end_date and start_date > end_date:
+        return jsonify({
+            "error": "Start date cannot be after end date."
+        }), 400
+
+    # Build filters
+    conditions = ["e.status = 'approved'"]
+    parameters = []
+
+    # Search title and description
+    if search:
+        conditions.append(
+            "(e.title LIKE ? OR e.description LIKE ?)"
+        )
+        parameters.extend([
+            f"%{search}%",
+            f"%{search}%"
+        ])
+
+    # Category filter
+    if category_id:
         conditions.append("e.category_id = ?")
         parameters.append(category_id)
+
+    # Start date filter
+    if start_date:
+        conditions.append("date(e.starts_at) >= date(?)")
+        parameters.append(start_date)
+
+    # End date filter (inclusive)
+    if end_date:
+        conditions.append("date(e.starts_at) <= date(?)")
+        parameters.append(end_date)
 
     where_clause = " AND ".join(conditions)
 
@@ -368,7 +411,7 @@ def get_events():
         parameters
     ).fetchone()[0]
 
-    # Retrieve matching events
+    # Retrieve filtered and sorted events
     events = db.execute(
         f"""
         SELECT
@@ -379,19 +422,34 @@ def get_events():
             e.ends_at,
             e.registration_deadline,
             e.capacity,
+            e.created_at,
             c.category_name,
             v.venue_name,
             v.location,
-            u.name AS organizer_name
+            u.name AS organizer_name,
+            COUNT(r.registration_id) AS registered_count
+
         FROM events e
+
         JOIN categories c
             ON e.category_id = c.category_id
+
         JOIN venues v
             ON e.venue_id = v.venue_id
+
         JOIN users u
             ON e.organizer_id = u.user_id
+
+        LEFT JOIN registrations r
+            ON e.event_id = r.event_id
+            AND r.status = 'confirmed'
+
         WHERE {where_clause}
-        ORDER BY e.starts_at ASC, e.event_id ASC
+
+        GROUP BY e.event_id
+
+        ORDER BY {sort_options[sort]}
+
         LIMIT ? OFFSET ?
         """,
         parameters + [

@@ -102,3 +102,62 @@ if (dock && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         items.forEach(item => item.style.transform = '')
     );
 }
+
+// Event registration and cancellation
+document.addEventListener('click', async (event) => {
+
+    const button = event.target.closest(
+        '[data-registration-action]'
+    );
+
+    if (!button) return;
+
+    const action = button.dataset.registrationAction;
+    const eventId = button.dataset.eventId;
+
+    if (!eventId || !['register', 'cancel'].includes(action)) {
+        return;
+    }
+
+    const originalText = button.textContent.trim();
+
+    button.disabled = true;
+    button.textContent = 'Please wait...';
+
+    try {
+
+        const response = await fetch(
+            action === 'register'
+                ? '/api/registrations/'
+                : `/api/registrations/${eventId}`,
+            {
+                method: action === 'register' ? 'POST' : 'DELETE',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                ...(action === 'register'
+                    ? { body: JSON.stringify({ event_id: eventId }) }
+                    : {})
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Request failed.');
+        }
+
+        toast(data.message || 'Registration updated successfully.');
+
+        window.location.reload();
+
+    } catch (error) {
+
+        toast(error.message);
+
+        button.disabled = false;
+        button.textContent = originalText;
+    }
+});
