@@ -1,12 +1,22 @@
+
 import csv
 from io import StringIO
-from flask import Response
 
-from flask import Blueprint, jsonify, request
+from flask import (
+    Blueprint, Response, jsonify, request, render_template
+)
+from flask_login import current_user
 
 from app.database import get_db
 from app.decorators import role_required
-from flask_login import current_user
+
+
+participants_bp = Blueprint(
+    "participants",
+    __name__,
+    url_prefix="/api/events"
+)
+
 
 def safe_csv_value(value):
     """Prevent spreadsheet formula injection."""
@@ -17,16 +27,57 @@ def safe_csv_value(value):
 
     return value
 
-participants_bp = Blueprint(
-    "participants",
-    __name__,
-    url_prefix="/api/events"
+
+# --------------------------------------------------
+# PARTICIPANT MANAGEMENT PAGE
+# --------------------------------------------------
+
+@participants_bp.route("/manage", methods=["GET"])
+@role_required("organizer", "admin")
+def participant_management_page():
+    """Render the participant management dashboard."""
+
+    db = get_db()
+
+    if current_user.role == "admin":
+        events = db.execute("""
+            SELECT
+                e.event_id,
+                e.title,
+                e.starts_at,
+                e.status
+            FROM events e
+            ORDER BY e.starts_at DESC
+        """).fetchall()
+    else:
+        events = db.execute("""
+            SELECT
+                e.event_id,
+                e.title,
+                e.starts_at,
+                e.status
+            FROM events e
+            WHERE e.organizer_id = ?
+            ORDER BY e.starts_at DESC
+        """, (current_user.id,)).fetchall()
+
+    return render_template(
+        "organizer/participants.html",
+        events=[dict(event) for event in events]
+    )
+
+
+# --------------------------------------------------
+# GET EVENT PARTICIPANTS
+# --------------------------------------------------
+
+@participants_bp.route(
+    "/<int:event_id>/participants",
+    methods=["GET"]
 )
-
-
-@participants_bp.route("/<int:event_id>/participants", methods=["GET"])
 @role_required("organizer", "admin")
 def get_event_participants(event_id):
+
     db = get_db()
 
     event = db.execute("""
@@ -38,17 +89,21 @@ def get_event_participants(event_id):
     if event is None:
         return jsonify({"error": "Event not found."}), 404
 
-    if current_user.role != "admin":
-        if event["organizer_id"] != current_user.id:
-            return jsonify({
-                "error": "You cannot view participants for this event."
-            }), 403
+    if (
+        current_user.role != "admin"
+        and event["organizer_id"] != current_user.id
+    ):
+        return jsonify({
+            "error": "You cannot view participants for this event."
+        }), 403
 
     search = request.args.get("search", "").strip()
     status = request.args.get("status", "confirmed").strip().lower()
 
     if status not in ("confirmed", "cancelled", "all"):
-        return jsonify({"error": "Invalid registration status."}), 400
+        return jsonify({
+            "error": "Invalid registration status."
+        }), 400
 
     try:
         page = int(request.args.get("page", 1))
@@ -58,7 +113,9 @@ def get_event_participants(event_id):
             raise ValueError
 
     except (ValueError, TypeError):
-        return jsonify({"error": "Invalid pagination values."}), 400
+        return jsonify({
+            "error": "Invalid pagination values."
+        }), 400
 
     conditions = ["r.event_id = ?"]
     params = [event_id]
@@ -97,7 +154,8 @@ def get_event_participants(event_id):
             END AS attendance_status,
             a.marked_at AS attendance_time
         FROM registrations r
-        JOIN users u ON u.user_id = r.user_id
+        JOIN users u
+            ON u.user_id = r.user_id
         LEFT JOIN attendance a
             ON a.registration_id = r.registration_id
         WHERE {where_clause}
@@ -108,7 +166,9 @@ def get_event_participants(event_id):
     return jsonify({
         "event_id": event_id,
         "event_title": event["title"],
-        "participants": [dict(row) for row in participants],
+        "participants": [
+            dict(row) for row in participants
+        ],
         "pagination": {
             "page": page,
             "per_page": per_page,
@@ -117,12 +177,18 @@ def get_event_participants(event_id):
         }
     }), 200
 
+
+# --------------------------------------------------
+# EXPORT PARTICIPANTS CSV
+# --------------------------------------------------
+
 @participants_bp.route(
     "/<int:event_id>/participants/export",
     methods=["GET"]
 )
 @role_required("organizer", "admin")
 def export_event_participants(event_id):
+
     db = get_db()
 
     event = db.execute("""
@@ -143,7 +209,9 @@ def export_event_participants(event_id):
     status = request.args.get("status", "all").lower()
 
     if status not in ("confirmed", "cancelled", "all"):
-        return jsonify({"error": "Invalid registration status."}), 400
+        return jsonify({
+            "error": "Invalid registration status."
+        }), 400
 
     query = """
         SELECT
@@ -157,7 +225,8 @@ def export_event_participants(event_id):
             END AS attendance_status,
             a.marked_at
         FROM registrations r
-        JOIN users u ON u.user_id = r.user_id
+        JOIN users u
+            ON u.user_id = r.user_id
         LEFT JOIN attendance a
             ON a.registration_id = r.registration_id
         WHERE r.event_id = ?
