@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}MULTYVERS{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/multyvers.css') }}">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+    {% block nav %}
+        {% include 'components/navbar.html' %}
+    {% endblock %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+        {% include 'components/footer.html' %}
+    {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/multyvers.js') }}" defer></script>
+
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>
