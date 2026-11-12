@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Attendance | MULTYVERS{% endblock %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block nav %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/attendance.css') }}">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="attendance-page student-attendance-page">
+
+    <header class="attendance-header">
+
+        <div>
+            <a href="/student/dashboard" class="back-link">
+                ← Back to Dashboard
+            </a>
+
+            <p class="eyebrow">STUDENT CHECK-IN</p>
+
+            <h1>Scan Attendance</h1>
+
+            <p class="subtitle">
+                Scan your event's QR code to mark your attendance.
+            </p>
+        </div>
+
+    </header>
+
+
+    <section class="attendance-card scanner-card">
+
+        <div class="scanner-icon">⌗</div>
+
+        <h2>QR Code Scanner</h2>
+
+        <p>
+            Allow camera access and position the event QR code
+            inside the scanning area.
+        </p>
+
+        <div id="qr-reader"></div>
+
+        <div class="scanner-controls">
+
+            <button id="startScannerBtn" class="primary-button">
+                Start Scanner
+            </button>
+
+            <button id="stopScannerBtn"
+                    class="secondary-button"
+                    disabled>
+                Stop Scanner
+            </button>
+
+        </div>
+
+        <div id="scannerMessage" class="status-message">
+            Scanner is not running.
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script src="{{ url_for('static', filename='js/attendance.js') }}"></script>
+
+{% endblock %}

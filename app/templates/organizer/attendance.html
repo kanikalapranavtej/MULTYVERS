@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}QR Attendance | MULTYVERS{% endblock %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block nav %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/attendance.css') }}">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="attendance-page">
+
+    <header class="attendance-header">
+        <div>
+            <a href="/organizer/dashboard" class="back-link">
+                ← Back to Dashboard
+            </a>
+
+            <p class="eyebrow">EVENT MANAGEMENT</p>
+
+            <h1>QR Attendance</h1>
+
+            <p class="subtitle">
+                Generate event QR codes and monitor student attendance.
+            </p>
+        </div>
+    </header>
+
+
+    <section class="attendance-card">
+
+        <div class="section-heading">
+            <div>
+                <h2>Generate Attendance QR</h2>
+                <p>Select an approved event to generate its QR code.</p>
+            </div>
+        </div>
+
+        <label for="attendanceEventSelect">
+            Select Event
+        </label>
+
+        <select id="attendanceEventSelect">
+            <option value="">Choose an event</option>
+
+            {% for event in events %}
+            <option value="{{ event.event_id }}">
+                {{ event.title }}
+            </option>
+            {% endfor %}
+
+        </select>
+
+        <button id="generateQrBtn" class="primary-button">
+            Generate QR Code
+        </button>
+
+        <div id="qrSection" class="qr-section hidden">
+
+            <div class="qr-image-container">
+                <img id="attendanceQrImage"
+                     alt="Event attendance QR code">
+            </div>
+
+            <p class="qr-caption">
+                Students can scan this QR code using the MULTYVERS
+                attendance scanner.
+            </p>
+
+            <a id="downloadQr"
+               class="secondary-button"
+               download="multyvers-attendance-qr.png">
+                Download QR Code
+            </a>
+
+        </div>
+
+        <p id="qrMessage" class="status-message"></p>
+
+    </section>
+
+
+    <section class="attendance-card">
+
+        <div class="section-heading">
+            <div>
+                <h2>Attendance Report</h2>
+                <p>View students who have successfully checked in.</p>
+            </div>
+
+            <a id="exportAttendanceBtn"
+               class="secondary-button disabled"
+               href="#">
+                Export CSV
+            </a>
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Marked At</th>
+                        <th>Method</th>
+                    </tr>
+                </thead>
+
+                <tbody id="attendanceTableBody">
+
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            Select an event to view attendance.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <p id="reportMessage" class="status-message"></p>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/attendance.js') }}"></script>
+{% endblock %}
