@@ -8,6 +8,7 @@ from app.routes.venues import venues_bp
 from app.routes.attendance import attendance_bp
 from app.routes.participants import participants_bp
 from app.routes.analytics import analytics_bp
+from app.routes.pages import pages_bp
 
 
 def create_app(config_class=Config):
@@ -23,6 +24,7 @@ def create_app(config_class=Config):
     from app.routes.events import events_bp
     from app.routes.registrations import registrations_bp
 
+
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(events_bp)
@@ -31,6 +33,7 @@ def create_app(config_class=Config):
     app.register_blueprint(attendance_bp)
     app.register_blueprint(participants_bp)
     app.register_blueprint(analytics_bp)
+    app.register_blueprint(pages_bp)
 
     @app.errorhandler(404)
     def not_found(error):

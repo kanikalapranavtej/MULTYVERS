@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Events | MULTYVERS{% endblock %}
+
+{% block content %}
+
+<section class="section container">
+
+    <div class="section-heading">
+        <div>
+            <span class="kicker">Discover experiences</span>
+            <h1>Explore <em>events.</em></h1>
+            <p class="hero-lead">
+                Find experiences happening across university communities.
+            </p>
+        </div>
+    </div>
+
+    <!-- EVENT FILTERS -->
+
+    <form method="GET"
+          action="{{ url_for('pages.event_listing') }}"
+          class="filter-panel">
+
+        <div class="filter-group">
+            <label class="filter-label" for="event-search">Search</label>
+            <input
+                id="event-search"
+                type="search"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search events..."
+                class="search-field"
+            >
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label" for="category-filter">Category</label>
+            <select id="category-filter"
+                    name="category_id"
+                    class="select-control">
+
+                <option value="">All categories</option>
+
+                {% for category in categories %}
+                    <option
+                        value="{{ category.category_id }}"
+                        {% if selected_category|string == category.category_id|string %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ category.category_name }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label" for="start-date">From date</label>
+            <input
+                id="start-date"
+                type="date"
+                name="start_date"
+                value="{{ start_date }}"
+                class="select-control"
+            >
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label" for="end-date">To date</label>
+            <input
+                id="end-date"
+                type="date"
+                name="end_date"
+                value="{{ end_date }}"
+                class="select-control"
+            >
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label" for="sort-filter">Sort by</label>
+            <select id="sort-filter"
+                    name="sort"
+                    class="select-control">
+
+                <option value="upcoming"
+                    {% if sort == 'upcoming' %}selected{% endif %}>
+                    Upcoming
+                </option>
+
+                <option value="latest"
+                    {% if sort == 'latest' %}selected{% endif %}>
+                    Latest
+                </option>
+
+                <option value="popular"
+                    {% if sort == 'popular' %}selected{% endif %}>
+                    Popular
+                </option>
+
+            </select>
+        </div>
+
+        <div class="hero-actions">
+            <button class="button" type="submit">
+                Apply filters
+            </button>
+
+            <a class="button button-ghost"
+               href="{{ url_for('pages.event_listing') }}">
+                Clear filters
+            </a>
+        </div>
+
+    </form>
+
+    <!-- RESULTS -->
+
+    <div class="results-toolbar">
+        <p class="event-meta">
+            {{ total }} events found
+        </p>
+    </div>
+
+    <div class="event-grid">
+
+        {% for event in events %}
+
+            {% include "events/_event_card.html" %}
+
+        {% else %}
+
+            <div class="empty-state">
+                <h3>No events found.</h3>
+                <p class="hero-lead">
+                    Try changing your search or filters.
+                </p>
+
+                <a class="button button-ghost"
+                   href="{{ url_for('pages.event_listing') }}">
+                    View all events
+                </a>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <!-- PAGINATION -->
+
+    {% if total_pages > 1 %}
+
+    <div class="hero-actions">
+
+        {% if page > 1 %}
+
+            <a class="button button-ghost"
+               href="{{ url_for(
+                    'pages.event_listing',
+                    search=search,
+                    category_id=selected_category,
+                    sort=sort,
+                    start_date=start_date,
+                    end_date=end_date,
+                    page=page-1
+               ) }}">
+                Previous
+            </a>
+
+        {% endif %}
+
+        <span class="event-meta">
+            Page {{ page }} of {{ total_pages }}
+        </span>
+
+        {% if page < total_pages %}
+
+            <a class="button"
+               href="{{ url_for(
+                    'pages.event_listing',
+                    search=search,
+                    category_id=selected_category,
+                    sort=sort,
+                    start_date=start_date,
+                    end_date=end_date,
+                    page=page+1
+               ) }}">
+                Next
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

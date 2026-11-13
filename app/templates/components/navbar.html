@@ -1,0 +1,140 @@
+<header class="site-nav" data-scrolled="false">
+
+    <!-- BRAND -->
+    <a class="brand dock-brand"
+       href="{{ url_for('main.home') }}"
+       aria-label="MULTYVERS home">
+
+        <span class="brand-mark">
+            <span></span><span></span><span></span>
+        </span>
+
+        <span>MULTYVERS</span>
+        <small>EVENT UNIVERSE</small>
+    </a>
+
+    <!-- DESKTOP NAVIGATION -->
+    <nav class="desktop-nav orbit-dock"
+         aria-label="Primary navigation"
+         data-orbit-dock>
+
+        <a class="dock-item"
+           href="{{ url_for('pages.event_listing') }}"
+           data-dock-item>
+
+            <i data-lucide="compass"></i>
+            <span>Explore</span>
+        </a>
+
+        <a class="dock-item"
+           href="{{ url_for('main.home', _anchor='categories') }}"
+           data-dock-item>
+
+            <i data-lucide="layers"></i>
+            <span>Categories</span>
+        </a>
+
+        <a class="dock-item"
+           href="{{ url_for('main.home', _anchor='how-it-works') }}"
+           data-dock-item>
+
+            <i data-lucide="orbit"></i>
+            <span>How it works</span>
+        </a>
+
+    </nav>
+
+    <!-- NAVIGATION ACTIONS -->
+    <div class="nav-actions">
+
+        <button class="icon-btn"
+                data-theme-toggle
+                aria-label="Toggle light and dark theme">
+
+            <i data-lucide="sun-moon"></i>
+        </button>
+
+        {% if current_user.is_authenticated %}
+
+            <span class="nav-login">
+                Hi, {{ current_user.name }}
+            </span>
+
+            <form method="POST"
+                  action="{{ url_for('auth.logout') }}"
+                  class="nav-logout-form">
+
+                <button type="submit" class="button button-sm">
+                    Log out
+                    <i data-lucide="log-out"></i>
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <a class="nav-login"
+               href="{{ url_for('auth.login') }}">
+                Log in
+            </a>
+
+            <a class="button button-sm"
+               href="{{ url_for('auth.register') }}">
+
+                Get started
+                <i data-lucide="arrow-up-right"></i>
+            </a>
+
+        {% endif %}
+
+        <button class="icon-btn mobile-menu-toggle"
+                data-mobile-menu
+                aria-label="Open menu">
+
+            <i data-lucide="menu"></i>
+        </button>
+
+    </div>
+
+    <!-- MOBILE NAVIGATION -->
+    <div class="mobile-nav" data-mobile-nav>
+
+        <a href="{{ url_for('pages.event_listing') }}">
+            Explore events
+        </a>
+
+        <a href="{{ url_for('main.home', _anchor='categories') }}">
+            Categories
+        </a>
+
+        <a href="{{ url_for('main.home', _anchor='how-it-works') }}">
+            How it works
+        </a>
+
+        {% if current_user.is_authenticated %}
+
+            <form method="POST"
+                  action="{{ url_for('auth.logout') }}">
+
+                <button type="submit" class="button">
+                    Log out
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <a href="{{ url_for('auth.login') }}">
+                Log in
+            </a>
+
+            <a class="button"
+               href="{{ url_for('auth.register') }}">
+                Get started
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</header>

@@ -44,15 +44,11 @@ def client(app):
 
 
 def test_home_endpoint(client):
-
     response = client.get("/")
 
     assert response.status_code == 200
-
-    data = response.get_json()
-
-    assert data["application"] == "MULTYVERS"
-    assert data["status"] == "running"
+    assert response.content_type.startswith("text/html")
+    assert b"MULTYVERS" in response.data
 
 
 def test_health_endpoint(client):

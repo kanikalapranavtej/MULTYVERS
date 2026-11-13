@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify, current_app, render_template
 from flask_login import current_user
 
 from app.database import get_db
@@ -10,12 +10,70 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/", methods=["GET"])
 def home():
+    db = get_db()
 
-    return jsonify({
-        "application": "MULTYVERS",
-        "message": "Welcome to MULTYVERS!",
-        "status": "running"
-    })
+    # Retrieve approved upcoming events.
+    featured_events = db.execute("""
+        SELECT
+            e.event_id,
+            e.title,
+            e.description,
+            e.starts_at,
+            e.ends_at,
+            e.capacity,
+            c.category_name,
+            v.venue_name,
+            v.location,
+            u.name AS organizer_name,
+            (
+                SELECT COUNT(*)
+                FROM registrations r
+                WHERE r.event_id = e.event_id
+                  AND r.status = 'confirmed'
+            ) AS registered_count
+        FROM events e
+        JOIN categories c ON e.category_id = c.category_id
+        JOIN venues v ON e.venue_id = v.venue_id
+        JOIN users u ON e.organizer_id = u.user_id
+        WHERE e.status = 'approved'
+          AND datetime(e.starts_at) >= datetime('now', 'localtime')
+        ORDER BY datetime(e.starts_at) ASC
+        LIMIT 6
+    """).fetchall()
+
+    # Retrieve real event categories.
+    categories = db.execute("""
+        SELECT
+            c.category_id,
+            c.category_name,
+            COUNT(e.event_id) AS event_count
+        FROM categories c
+        LEFT JOIN events e
+            ON e.category_id = c.category_id
+            AND e.status = 'approved'
+            AND datetime(e.starts_at) >= datetime('now', 'localtime')
+        GROUP BY c.category_id, c.category_name
+        ORDER BY c.category_name
+    """).fetchall()
+
+    # Real platform statistics.
+    statistics = db.execute("""
+        SELECT
+            (SELECT COUNT(*) FROM users WHERE role = 'student')
+                AS students,
+            (SELECT COUNT(*) FROM events WHERE status = 'approved')
+                AS events,
+            (SELECT COUNT(*) FROM categories)
+                AS categories
+    """).fetchone()
+
+    return render_template(
+        "landing.html",
+        featured_events=[dict(row) for row in featured_events],
+        categories=[dict(row) for row in categories],
+        statistics=dict(statistics),
+        current_year=__import__("datetime").datetime.now().year
+    )
 
 
 @main_bp.route("/health", methods=["GET"])

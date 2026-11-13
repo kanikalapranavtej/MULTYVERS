@@ -1,0 +1,47 @@
+<footer class="site-footer container">
+
+    <div class="footer-top">
+
+        <div>
+            <a class="brand" href="{{ url_for('main.home') }}">
+                <span class="brand-mark">
+                    <span></span><span></span><span></span>
+                </span>
+                <span>MULTYVERS</span>
+            </a>
+
+            <p class="footer-copy">
+                One universe for every campus experience.
+            </p>
+        </div>
+
+        <div class="footer-links">
+
+            <div>
+                <b>Discover</b>
+                <a href="#events">Explore events</a>
+                <a href="#categories">Categories</a>
+            </div>
+
+            <div>
+                <b>Platform</b>
+                <a href="#how-it-works">For students</a>
+                <a href="#how-it-works">For organizers</a>
+            </div>
+
+            <div>
+                <b>Account</b>
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <span>© {{ current_year|default(2026) }} MULTYVERS</span>
+        <span>Built for the next generation of campus life.</span>
+    </div>
+
+</footer>

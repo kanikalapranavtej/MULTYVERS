@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% from "components/event_card.html" import event_card %}
+
+{% block title %}
+MULTYVERS — One Universe. Infinite Experiences.
+{% endblock %}
+
+{% block content %}
+
+<section class="hero container">
+
+    <div class="hero-copy reveal">
+
+        <div class="status-pill">
+            <span class="pulse-dot"></span>
+            The campus event universe is live
+        </div>
+
+        <h1>
+            One universe.<br>
+            <em>Infinite experiences.</em>
+        </h1>
+
+        <p class="hero-lead">
+            Discover events, connect with communities and
+            create unforgettable university experiences.
+        </p>
+
+        <div class="hero-actions">
+            <a class="button" href="#events">
+                Explore events
+                <i data-lucide="arrow-up-right"></i>
+            </a>
+
+            <a class="button button-ghost"
+               href="{{ url_for('auth.register') }}">
+                Join MULTYVERS
+            </a>
+        </div>
+
+        <div class="hero-proof">
+            Discover. Participate. Organize.
+        </div>
+
+    </div>
+
+    <div class="hero-visual reveal">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+
+        <div class="hero-core">
+            <div class="core-glow"></div>
+            <span class="core-label">MULTY<br>VERS</span>
+            <span class="core-line"></span>
+        </div>
+    </div>
+
+</section>
+
+
+<section class="section container" id="events">
+
+    <div class="section-heading">
+        <div>
+            <span class="kicker">Discover experiences</span>
+            <h2>Find your next <em>favorite</em> event.</h2>
+        </div>
+    </div>
+
+    <div class="event-grid">
+
+        {% for event in featured_events %}
+            {{ event_card(event) }}
+        {% else %}
+            <p class="hero-lead">
+                No upcoming approved events yet.
+                Check back soon!
+            </p>
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<section class="category-section" id="categories">
+
+    <div class="container">
+
+        <div class="section-heading">
+            <div>
+                <span class="kicker">Explore by interest</span>
+                <h2>Choose your <em>universe.</em></h2>
+            </div>
+        </div>
+
+        <div class="category-grid">
+
+            {% for category in categories %}
+
+            <a class="category-tile"
+               href="{{ url_for('events.get_events',
+                                category_id=category.category_id) }}">
+
+                <span class="category-icon">
+                    <i data-lucide="layers"></i>
+                </span>
+
+                <strong>{{ category.category_name }}</strong>
+
+                <small>
+                    {{ category.event_count }} upcoming events
+                </small>
+
+                <i class="category-arrow"
+                   data-lucide="arrow-up-right"></i>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="stats-section">
+
+    <div class="container stats-grid">
+
+        <div class="stat">
+            <strong>{{ statistics.students }}</strong>
+            <span>Students</span>
+        </div>
+
+        <div class="stat">
+            <strong>{{ statistics.events }}</strong>
+            <span>Approved events</span>
+        </div>
+
+        <div class="stat">
+            <strong>{{ statistics.categories }}</strong>
+            <span>Event categories</span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="cta-section container">
+
+    <div class="cta-orb"></div>
+
+    <span class="kicker">Your next chapter starts here</span>
+
+    <h2>Make campus <em>matter.</em></h2>
+
+    <p>
+        Discover opportunities, participate in events
+        and build communities with MULTYVERS.
+    </p>
+
+    <div class="hero-actions">
+
+        <a class="button"
+           href="{{ url_for('auth.register') }}">
+            Get started
+            <i data-lucide="arrow-up-right"></i>
+        </a>
+
+        <a class="button button-ghost"
+           href="#events">
+            Explore events
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}
