@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+
+{% block title %}Venue Management | MULTYVERS{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+{% block nav %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="dashboard-sidebar">
+
+        <a class="brand sidebar-brand" href="{{ url_for('main.home') }}">
+            <span class="brand-mark">
+                <span></span><span></span><span></span>
+            </span>
+            <span>MULTYVERS</span>
+        </a>
+
+        <div class="sidebar-profile">
+            <div class="avatar avatar-gradient">
+                {{ current_user.name[:2]|upper }}
+            </div>
+
+            <div>
+                <strong>{{ current_user.name }}</strong>
+                <span>Platform Admin</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <span class="sidebar-label">Workspace</span>
+
+            <a href="{{ url_for('main.home') }}">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('venue_pages.venue_management_page') }}"
+               class="active">
+                <i data-lucide="building-2"></i>
+                Venue management
+            </a>
+
+            <span class="sidebar-label">Infrastructure</span>
+
+            <a href="#venue-list">
+                <i data-lucide="map-pin"></i>
+                Campus venues
+            </a>
+
+            <a href="#availability">
+                <i data-lucide="calendar-check"></i>
+                Venue availability
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-promo">
+                <span class="mini-orb"></span>
+                <strong>Every event has a place.</strong>
+                <p>
+                    Keep campus spaces organized and bookings conflict-free.
+                </p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.logout') }}">
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <button class="sidebar-logout" type="submit">
+                    <i data-lucide="log-out"></i>
+                    Log out
+                </button>
+            </form>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <section class="dashboard-content">
+
+        <!-- TOPBAR -->
+        <header class="dashboard-topbar">
+
+            <div class="breadcrumb">
+                <span>Admin console</span>
+                <i data-lucide="chevron-right"></i>
+                <b>Venue management</b>
+            </div>
+
+            <div class="dashboard-top-actions">
+
+                <span class="admin-secure">
+                    <i data-lucide="shield-check"></i>
+                    Secure session
+                </span>
+
+                <button class="icon-btn"
+                        type="button"
+                        data-theme-toggle
+                        aria-label="Toggle theme">
+                    <i data-lucide="sun-moon"></i>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <div class="dashboard-main">
+
+            <!-- PAGE HEADING -->
+            <div class="welcome-row">
+
+                <div>
+                    <span class="kicker">CAMPUS OPERATIONS</span>
+
+                    <h1>
+                        Manage your <em>venues.</em>
+                    </h1>
+
+                    <p>
+                        Manage campus spaces, capacities and booking availability.
+                    </p>
+                </div>
+
+                <button class="button"
+                        id="addVenueBtn"
+                        type="button">
+                    <i data-lucide="plus"></i>
+                    Add venue
+                </button>
+
+            </div>
+
+
+            <!-- STATISTICS -->
+            <div class="dashboard-grid">
+
+                <div class="dash-card metric-card">
+
+                    <span class="metric-icon purple">
+                        <i data-lucide="building-2"></i>
+                    </span>
+
+                    <small>Total venues</small>
+                    <strong id="totalVenues">0</strong>
+
+                </div>
+
+
+                <div class="dash-card metric-card">
+
+                    <span class="metric-icon cyan">
+                        <i data-lucide="users"></i>
+                    </span>
+
+                    <small>Total seating capacity</small>
+                    <strong id="totalCapacity">0</strong>
+
+                </div>
+
+
+                <div class="dash-card metric-card">
+
+                    <span class="metric-icon orange">
+                        <i data-lucide="search"></i>
+                    </span>
+
+                    <small>Search results</small>
+                    <strong id="visibleVenues">0</strong>
+
+                </div>
+
+
+                <div class="dash-card metric-card">
+
+                    <span class="metric-icon green">
+                        <i data-lucide="activity"></i>
+                    </span>
+
+                    <small>Management status</small>
+                    <strong style="font-size:20px">Active</strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- VENUE LIST -->
+            <section class="dash-card table-card" id="venue-list">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="kicker">VENUE DIRECTORY</span>
+                        <h2>Campus venues</h2>
+                        <p>
+                            View, search, update and manage registered campus venues.
+                        </p>
+                    </div>
+
+                    <i data-lucide="building"></i>
+
+                </div>
+
+
+                <!-- SEARCH -->
+                <div class="venue-search-wrapper">
+
+                    <i data-lucide="search"></i>
+
+                    <input
+                        type="search"
+                        id="venueSearch"
+                        placeholder="Search by venue name or location..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <!-- STATUS MESSAGE -->
+                <div id="venueMessage"
+                     class="venue-message"
+                     role="status"
+                     aria-live="polite">
+                </div>
+
+
+                <!-- VENUE TABLE -->
+                <div class="table-responsive">
+
+                    <table class="venue-table">
+
+                        <thead>
+                            <tr>
+                                <th>Venue</th>
+                                <th>Location</th>
+                                <th>Capacity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="venueTableBody">
+
+                            <tr>
+                                <td colspan="4">
+                                    Loading venues...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- AVAILABILITY CHECK -->
+            <section class="dash-card table-card" id="availability">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="kicker">BOOKING CONTROL</span>
+                        <h2>Check venue availability</h2>
+
+                        <p>
+                            Select a venue and time slot to check for booking conflicts.
+                        </p>
+                    </div>
+
+                    <i data-lucide="calendar-check"></i>
+
+                </div>
+
+
+                <form id="availabilityForm"
+                      class="availability-form">
+
+                    <div class="form-group">
+
+                        <label for="availabilityVenue">
+                            Select venue
+                        </label>
+
+                        <select id="availabilityVenue" required>
+                            <option value="">Choose a venue</option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="availabilityStart">
+                            Start date and time
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="availabilityStart"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="availabilityEnd">
+                            End date and time
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="availabilityEnd"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button type="submit" class="button">
+                        <i data-lucide="search"></i>
+                        Check availability
+                    </button>
+
+                </form>
+
+
+                <div id="availabilityResult"
+                     class="availability-result"
+                     role="status"
+                     aria-live="polite">
+                </div>
+
+            </section>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- ADD / EDIT VENUE DIALOG -->
+<dialog id="venueDialog">
+
+    <form id="venueForm">
+
+        <h2 id="venueDialogTitle">Add venue</h2>
+
+
+        <label for="venueName">
+            Venue name
+        </label>
+
+        <input
+            id="venueName"
+            name="venue_name"
+            required
+            maxlength="120"
+        >
+
+
+        <label for="venueLocation">
+            Location
+        </label>
+
+        <input
+            id="venueLocation"
+            name="location"
+            required
+            maxlength="160"
+        >
+
+
+        <label for="venueCapacity">
+            Capacity
+        </label>
+
+        <input
+            id="venueCapacity"
+            name="capacity"
+            type="number"
+            min="1"
+            step="1"
+            required
+        >
+
+
+        <p id="venueFormError" role="alert"></p>
+
+
+        <div class="venue-dialog-actions">
+
+            <button type="button"
+                    class="button button-ghost"
+                    id="cancelVenue">
+                Cancel
+            </button>
+
+            <button type="submit" class="button">
+                Save venue
+            </button>
+
+        </div>
+
+    </form>
+
+</dialog>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script src="{{ url_for('static', filename='js/venues.js') }}"></script>
+
+{% endblock %}

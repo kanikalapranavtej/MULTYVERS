@@ -257,3 +257,185 @@ def test_venue_with_events_cannot_be_deleted(client, app):
     response = client.delete("/api/venues/1")
 
     assert response.status_code == 409
+
+# --------------------------------------------------
+# VENUE AVAILABILITY TESTS
+# --------------------------------------------------
+
+def insert_test_event(
+    app,
+    status="approved",
+    starts_at="2027-01-15T10:00:00",
+    ends_at="2027-01-15T12:00:00",
+    venue_id=1
+):
+    with sqlite3.connect(app.config["DATABASE"]) as connection:
+        cursor = connection.execute("""
+            INSERT INTO events (
+                title, description, organizer_id, category_id,
+                venue_id, starts_at, ends_at,
+                registration_deadline, capacity, status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            "Test Event",
+            "Testing venue availability",
+            1,
+            1,
+            venue_id,
+            starts_at,
+            ends_at,
+            "2027-01-14T18:00:00",
+            100,
+            status,
+        ))
+
+        connection.commit()
+        return cursor.lastrowid
+
+
+def availability_url(
+    venue_id=1,
+    starts_at="2027-01-15T10:00:00",
+    ends_at="2027-01-15T12:00:00",
+    exclude_event_id=None
+):
+    url = (
+        f"/api/venues/availability?"
+        f"venue_id={venue_id}"
+        f"&starts_at={starts_at}"
+        f"&ends_at={ends_at}"
+    )
+
+    if exclude_event_id is not None:
+        url += f"&exclude_event_id={exclude_event_id}"
+
+    return url
+
+
+def test_organizer_can_check_venue_availability(client):
+    login_as(client, "organizer")
+
+    response = client.get(availability_url())
+
+    assert response.status_code == 200
+    assert response.get_json()["available"] is True
+    assert response.get_json()["conflict_count"] == 0
+
+
+def test_admin_can_check_venue_availability(client):
+    login_as(client, "admin")
+
+    response = client.get(availability_url())
+
+    assert response.status_code == 200
+    assert response.get_json()["available"] is True
+
+
+@pytest.mark.parametrize("status", ["pending", "approved"])
+def test_active_event_creates_venue_conflict(client, app, status):
+    login_as(client, "organizer")
+
+    insert_test_event(app, status=status)
+
+    response = client.get(availability_url())
+
+    data = response.get_json()
+
+    assert response.status_code == 200
+    assert data["available"] is False
+    assert data["conflict_count"] == 1
+    assert data["conflicts"][0]["status"] == status
+
+
+@pytest.mark.parametrize("status", ["rejected", "cancelled"])
+def test_inactive_event_does_not_create_venue_conflict(
+    client, app, status
+):
+    login_as(client, "organizer")
+
+    insert_test_event(app, status=status)
+
+    response = client.get(availability_url())
+
+    assert response.status_code == 200
+    assert response.get_json()["available"] is True
+    assert response.get_json()["conflict_count"] == 0
+
+
+def test_adjacent_bookings_do_not_conflict(client, app):
+    login_as(client, "organizer")
+
+    insert_test_event(
+        app,
+        starts_at="2027-01-15T10:00:00",
+        ends_at="2027-01-15T12:00:00"
+    )
+
+    response = client.get(availability_url(
+        starts_at="2027-01-15T12:00:00",
+        ends_at="2027-01-15T14:00:00"
+    ))
+
+    assert response.status_code == 200
+    assert response.get_json()["available"] is True
+
+
+def test_event_ending_after_booking_starts_creates_conflict(
+    client, app
+):
+    login_as(client, "organizer")
+
+    insert_test_event(app)
+
+    response = client.get(availability_url(
+        starts_at="2027-01-15T11:00:00",
+        ends_at="2027-01-15T13:00:00"
+    ))
+
+    assert response.status_code == 200
+    assert response.get_json()["available"] is False
+
+
+def test_current_event_can_be_excluded_during_update(client, app):
+    login_as(client, "organizer")
+
+    event_id = insert_test_event(app)
+
+    response = client.get(
+        availability_url(exclude_event_id=event_id)
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["available"] is True
+    assert response.get_json()["conflict_count"] == 0
+
+
+@pytest.mark.parametrize("url", [
+    "/api/venues/availability",
+    "/api/venues/availability?venue_id=abc&starts_at=2027-01-15T10:00:00&ends_at=2027-01-15T12:00:00",
+    "/api/venues/availability?venue_id=1&starts_at=invalid&ends_at=2027-01-15T12:00:00",
+    "/api/venues/availability?venue_id=1&starts_at=2027-01-15T12:00:00&ends_at=2027-01-15T10:00:00",
+    "/api/venues/availability?venue_id=999&starts_at=2027-01-15T10:00:00&ends_at=2027-01-15T12:00:00",
+])
+def test_invalid_availability_requests_are_rejected(client, url):
+    login_as(client, "organizer")
+
+    response = client.get(url)
+
+    assert response.status_code in (400, 404)
+
+
+def test_student_cannot_check_venue_availability(client):
+    login_as(client, "student")
+
+    response = client.get(availability_url())
+
+    assert response.status_code == 403
+
+
+def test_unauthenticated_user_cannot_check_venue_availability(client):
+    response = client.get(availability_url())
+
+    assert response.status_code == 302
+    assert "/auth/login" in response.location
