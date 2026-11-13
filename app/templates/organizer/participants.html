@@ -1,0 +1,324 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Participant Management | MULTYVERS{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+{% block nav %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/participants.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-shell">
+
+    <aside class="dashboard-sidebar">
+
+        <a class="brand sidebar-brand"
+           href="{{ url_for('main.home') }}">
+            <span class="brand-mark">
+                <span></span><span></span><span></span>
+            </span>
+            <span>MULTYVERS</span>
+        </a>
+
+        <div class="sidebar-profile">
+            <div class="avatar avatar-gradient">
+                {{ current_user.name[:2]|upper }}
+            </div>
+
+            <div>
+                <strong>{{ current_user.name }}</strong>
+                <span>{{ current_user.role|capitalize }}</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <span class="sidebar-label">Workspace</span>
+
+            <a href="{{ url_for('main.home') }}">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
+
+            <a href="#participant-section" class="active">
+                <i data-lucide="users"></i>
+                Participants
+            </a>
+
+            <span class="sidebar-label">Management</span>
+
+            <a href="#participant-section">
+                <i data-lucide="clipboard-list"></i>
+                Registrations
+            </a>
+
+            <a href="#participant-section">
+                <i data-lucide="scan-line"></i>
+                Attendance
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-promo">
+                <span class="mini-orb"></span>
+                <strong>Your community matters.</strong>
+                <p>Keep track of every registration and attendee.</p>
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('auth.logout') }}">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <button class="sidebar-logout" type="submit">
+                    <i data-lucide="log-out"></i>
+                    Log out
+                </button>
+
+            </form>
+
+        </div>
+
+    </aside>
+
+    <section class="dashboard-content">
+
+        <header class="dashboard-topbar">
+
+            <div class="breadcrumb">
+                <span>Event operations</span>
+                <i data-lucide="chevron-right"></i>
+                <b>Participants</b>
+            </div>
+
+            <div class="dashboard-top-actions">
+                <span class="admin-secure">
+                    <i data-lucide="shield-check"></i>
+                    Secure session
+                </span>
+            </div>
+
+        </header>
+
+        <div class="dashboard-main">
+
+            <div class="welcome-row">
+                <div>
+                    <span class="kicker">COMMUNITY MANAGEMENT</span>
+                    <h1>Know your <em>people.</em></h1>
+                    <p>
+                        Manage registrations, find participants and
+                        track event attendance.
+                    </p>
+                </div>
+            </div>
+
+            <section class="participant-controls dash-card">
+
+                <div class="card-heading">
+                    <div>
+                        <span class="kicker">EVENT SELECTION</span>
+                        <h2>Select an event</h2>
+                        <p>Choose an event to view its participants.</p>
+                    </div>
+
+                    <i data-lucide="calendar-days"></i>
+                </div>
+
+                <div class="participant-control-grid">
+
+                    <div class="form-group">
+                        <label for="eventSelect">Event</label>
+
+                        <select id="eventSelect">
+                            <option value="">Choose an event</option>
+
+                            {% for event in events %}
+                            <option value="{{ event.event_id }}">
+                                {{ event.title }}
+                                — {{ event.status|capitalize }}
+                            </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="statusFilter">
+                            Registration status
+                        </label>
+
+                        <select id="statusFilter">
+                            <option value="confirmed">Confirmed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="all">All registrations</option>
+                        </select>
+                    </div>
+
+                    <button id="exportParticipants"
+                            class="button"
+                            type="button"
+                            disabled>
+                        <i data-lucide="download"></i>
+                        Export CSV
+                    </button>
+
+                </div>
+
+            </section>
+
+            <div class="dashboard-grid participant-stats">
+
+                <div class="dash-card metric-card">
+                    <span class="metric-icon purple">
+                        <i data-lucide="users"></i>
+                    </span>
+                    <small>Total registrations</small>
+                    <strong id="totalParticipants">0</strong>
+                </div>
+
+                <div class="dash-card metric-card">
+                    <span class="metric-icon green">
+                        <i data-lucide="user-check"></i>
+                    </span>
+                    <small>Present on this page</small>
+                    <strong id="presentParticipants">0</strong>
+                </div>
+
+                <div class="dash-card metric-card">
+                    <span class="metric-icon orange">
+                        <i data-lucide="user-x"></i>
+                    </span>
+                    <small>Absent on this page</small>
+                    <strong id="absentParticipants">0</strong>
+                </div>
+
+                <div class="dash-card metric-card">
+                    <span class="metric-icon cyan">
+                        <i data-lucide="list-checks"></i>
+                    </span>
+                    <small>Current page</small>
+                    <strong id="currentPage">0 / 0</strong>
+                </div>
+
+            </div>
+
+            <section class="dash-card table-card"
+                     id="participant-section">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="kicker">REGISTRATION DIRECTORY</span>
+                        <h2 id="participantHeading">
+                            Event participants
+                        </h2>
+                        <p>
+                            Search and review registrations and
+                            attendance records.
+                        </p>
+                    </div>
+
+                    <i data-lucide="users"></i>
+
+                </div>
+
+                <div class="participant-toolbar">
+
+                    <div class="participant-search">
+                        <i data-lucide="search"></i>
+
+                        <input
+                            type="search"
+                            id="participantSearch"
+                            placeholder="Search by name or email..."
+                            disabled
+                        >
+                    </div>
+
+                    <span id="participantCount"
+                          class="participant-count">
+                        Select an event
+                    </span>
+
+                </div>
+
+                <div id="participantMessage"
+                     class="participant-message"
+                     role="status"
+                     aria-live="polite">
+                    Select an event to load its participants.
+                </div>
+
+                <div class="responsive-table">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Participant</th>
+                                <th>Email</th>
+                                <th>Registration</th>
+                                <th>Attendance</th>
+                                <th>Registered on</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="participantTableBody">
+                            <tr>
+                                <td colspan="5">
+                                    No event selected.
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="participant-pagination">
+
+                    <span id="paginationInfo">
+                        Page 0 of 0
+                    </span>
+
+                    <div>
+                        <button id="previousPage"
+                                class="button button-ghost"
+                                type="button"
+                                disabled>
+                            Previous
+                        </button>
+
+                        <button id="nextPage"
+                                class="button button-ghost"
+                                type="button"
+                                disabled>
+                            Next
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/participants.js') }}"></script>
+{% endblock %}
+```
