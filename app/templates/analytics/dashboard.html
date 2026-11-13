@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MULTYVERS | Analytics Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/analytics.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">M</div>
+            <span>MULTYVERS</span>
+        </div>
+
+        <div class="sidebar-label">WORKSPACE</div>
+
+        <nav class="sidebar-nav">
+
+            <a href="/analytics/dashboard" class="nav-link active">
+                <span>▦</span>
+                Analytics
+            </a>
+
+            <a href="/organizer/dashboard" class="nav-link">
+                <span>◈</span>
+                Dashboard
+            </a>
+
+            <a href="/events" class="nav-link">
+                <span>◇</span>
+                Events
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-label">PLATFORM</div>
+
+            <a href="/auth/logout" class="nav-link">
+                <span>↪</span>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+                <p class="topbar-label">MULTYVERS / INSIGHTS</p>
+                <h1>Analytics Dashboard</h1>
+            </div>
+
+            <div class="topbar-actions">
+
+                <span class="live-indicator">
+                    <span></span>
+                    Live Data
+                </span>
+
+                <button id="refreshButton" class="icon-button">
+                    ↻
+                </button>
+
+                <button id="exportButton" class="export-button">
+                    ↓ Export CSV
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- ERROR / LOADING -->
+
+        <div id="loadingMessage" class="message-box">
+            Loading analytics...
+        </div>
+
+        <div id="errorMessage" class="message-box error hidden">
+        </div>
+
+
+        <!-- KPI CARDS -->
+
+        <section class="stats-grid">
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Total Events</span>
+                    <span class="stat-icon purple">◇</span>
+                </div>
+
+                <h2 id="totalEvents">--</h2>
+                <p>Events across your platform</p>
+            </article>
+
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Approved Events</span>
+                    <span class="stat-icon green">✓</span>
+                </div>
+
+                <h2 id="approvedEvents">--</h2>
+                <p>Approved for participation</p>
+            </article>
+
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Pending Events</span>
+                    <span class="stat-icon orange">◷</span>
+                </div>
+
+                <h2 id="pendingEvents">--</h2>
+                <p>Awaiting approval</p>
+            </article>
+
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Registrations</span>
+                    <span class="stat-icon blue">♧</span>
+                </div>
+
+                <h2 id="totalRegistrations">--</h2>
+                <p>Confirmed registrations</p>
+            </article>
+
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Attendance</span>
+                    <span class="stat-icon cyan">✓</span>
+                </div>
+
+                <h2 id="totalAttendance">--</h2>
+                <p>Students checked in</p>
+            </article>
+
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Attendance Rate</span>
+                    <span class="stat-icon pink">%</span>
+                </div>
+
+                <h2 id="attendanceRate">--</h2>
+                <p>Attendance against registrations</p>
+            </article>
+
+        </section>
+
+
+        <!-- CHARTS -->
+
+        <section class="charts-grid">
+
+            <article class="panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3>Event Status Distribution</h3>
+                        <p>Breakdown of event approval statuses</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="eventStatusChart"></canvas>
+                </div>
+
+            </article>
+
+
+            <article class="panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3>Category Performance</h3>
+                        <p>Registrations across event categories</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+
+            </article>
+
+
+            <article class="panel wide-panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3>Event Registrations</h3>
+                        <p>Confirmed registrations by event</p>
+                    </div>
+                </div>
+
+                <div class="chart-container large-chart">
+                    <canvas id="registrationChart"></canvas>
+                </div>
+
+            </article>
+
+
+            <article class="panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3>Attendance Performance</h3>
+                        <p>Attendance percentage by event</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- EVENT TABLE -->
+
+        <section class="panel table-panel">
+
+            <div class="panel-heading">
+
+                <div>
+                    <h3>Event Performance</h3>
+                    <p>Detailed registration and attendance metrics</p>
+                </div>
+
+                <span id="eventCount" class="event-count">
+                    0 events
+                </span>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Status</th>
+                            <th>Capacity</th>
+                            <th>Registrations</th>
+                            <th>Attendance</th>
+                            <th>Attendance Rate</th>
+                            <th>Capacity Used</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="eventTableBody">
+
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                Loading event performance...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <footer class="dashboard-footer">
+            MULTYVERS Analytics · Campus Event Management Platform
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+
+</body>
+</html>
