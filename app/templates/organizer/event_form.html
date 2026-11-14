@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Event' if event else 'Create Event' }} | MULTYVERS{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/portals.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/event_workflows.css') }}"><meta name="csrf-token" content="{{ csrf_token() }}">{% endblock %}
+{% macro date_part(value) -%}{{ value[:10] if value else '' }}{%- endmacro %}
+{% macro time_part(value) -%}{{ value[11:16] if value and value|length >= 16 else '' }}{%- endmacro %}
+{% block content %}<section class="portal container"><div class="portal-head"><div><span class="eyebrow">ORGANIZER WORKSPACE</span><h1>{{ 'Edit event' if event else 'Create an event' }}</h1><p>New and edited events are submitted for administrator review.</p></div><a class="button button-secondary" href="{{ url_for('portal_pages.organizer_portal') }}">← Back to dashboard</a></div>
+{% if not categories or not venues %}<div class="portal-panel portal-error">Event creation is temporarily unavailable because the administrator has not configured {% if not categories and not venues %}categories and venues{% elif not categories %}event categories{% else %}campus venues{% endif %}. Please contact the administrator.</div>{% endif %}
+<form id="eventForm" class="portal-form" data-event-id="{{ event.event_id if event else '' }}">
+<label>Event title<input name="title" required maxlength="150" value="{{ event.title if event else '' }}" placeholder="e.g. Annual Tech Symposium"></label>
+<label>Description<textarea name="description" rows="4" placeholder="Describe your event">{{ event.description if event else '' }}</textarea></label>
+<div class="portal-form-grid">
+<label>Category<select name="category_id" required><option value="">Select category</option>{% for c in categories %}<option value="{{ c.category_id }}" {% if event and event.category_id == c.category_id %}selected{% endif %}>{{ c.category_name }}</option>{% endfor %}</select></label>
+<label>Venue<select name="venue_id" id="eventVenue" required><option value="">Select venue</option>{% for v in venues %}<option value="{{ v.venue_id }}" data-capacity="{{ v.capacity }}" {% if event and event.venue_id == v.venue_id %}selected{% endif %}>{{ v.venue_name }} — {{ v.location }} (capacity {{ v.capacity }})</option>{% endfor %}</select></label>
+<label>Event capacity<input name="capacity" id="eventCapacity" type="number" min="1" required value="{{ event.capacity if event else '' }}"></label>
+<div class="datetime-field"><label for="starts_date">Starts on</label><div class="date-time-pair"><input id="starts_date" type="date" required value="{{ date_part(event.starts_at) if event else '' }}"><input id="starts_time" type="time" required value="{{ time_part(event.starts_at) if event else '09:00' }}"></div></div>
+<div class="datetime-field"><label for="ends_date">Ends on</label><div class="date-time-pair"><input id="ends_date" type="date" required value="{{ date_part(event.ends_at) if event else '' }}"><input id="ends_time" type="time" required value="{{ time_part(event.ends_at) if event else '17:00' }}"></div></div>
+<div class="datetime-field"><label for="deadline_date">Registration deadline</label><div class="date-time-pair"><input id="deadline_date" type="date" required value="{{ date_part(event.registration_deadline) if event else '' }}"><input id="deadline_time" type="time" required value="{{ time_part(event.registration_deadline) if event else '08:00' }}"></div></div>
+</div>
+<section class="portal-panel venue-check-panel" aria-labelledby="venueCheckTitle">
+  <div class="panel-title"><div><span class="eyebrow">VENUE BOOKING</span><h2 id="venueCheckTitle">Check Venue Availability</h2><p>Check for booking conflicts before submitting your event.</p></div></div>
+  <div class="venue-check-grid">
+    <div><strong>Selected Venue</strong><span id="availabilityVenueName">Choose a venue above</span></div>
+    <div><strong>Start</strong><span id="availabilityStart">Select event start date and time</span></div>
+    <div><strong>End</strong><span id="availabilityEnd">Select event end date and time</span></div>
+  </div>
+  <button type="button" class="button button-secondary" id="checkVenueAvailability">Check Availability</button>
+  <p id="venueAvailabilityMessage" class="portal-note" role="status" aria-live="polite">Select a venue and event dates to check availability.</p>
+</section>
+<p class="portal-note">Choose both a date and a time for each field. Registration must close before the event starts. Your event remains pending until an administrator approves it.</p><div class="portal-actions"><button class="button" type="submit" {% if not categories or not venues %}disabled{% endif %}>{{ 'Save changes' if event else 'Submit event for approval' }}</button><span id="eventFormMessage" role="status"></span></div></form></section>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/organizer_events.js') }}"></script>{% endblock %}

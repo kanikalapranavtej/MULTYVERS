@@ -13,3 +13,41 @@
 @media(max-width:1050px){.nav-live{display:none}}
 @media(max-width:760px){.dock-brand small{display:none}.dock-brand{display:flex}.orbit-dock{display:none}.mobile-live{display:flex}}
 @media(prefers-reduced-motion:reduce){.dock-item:hover{transform:none}.site-nav{transition:none}}
+
+/* Event discovery: filters follow the event results and stay inline on mobile. */
+.event-discovery-page .event-card { min-height:100%; }
+.event-discovery-page .event-image { height:245px; }
+.event-discovery-page .event-card-body { padding:22px; }
+.event-discovery-page .event-card h3 { font-size:21px; line-height:1.3; }
+.event-discovery-page .event-meta { font-size:12px; line-height:1.5; }
+@media(max-width:760px) { .event-discovery-page .filter-panel { position:static; inset:auto; width:100%; transform:none; box-shadow:none; padding:0; background:transparent; overflow:visible; } .event-discovery-page .event-grid { grid-template-columns:1fr; } .event-discovery-page .event-image { height:225px; } }
+
+/* Event detail information hierarchy */
+.detail-section { margin-top:34px; padding:26px 28px; border:1px solid var(--border); border-radius:18px; background:var(--surface); }
+.detail-section h2 { font-size:clamp(22px,2.4vw,30px); margin-bottom:20px; }
+.detail-section p { display:flex; gap:8px; flex-wrap:wrap; padding:12px 0; margin:0; border-bottom:1px solid var(--border); color:var(--muted); font-size:14px; line-height:1.65; }
+.detail-section p:last-child { border-bottom:0; }
+.detail-section p strong { min-width:170px; color:var(--text); }
+.registration-card { padding:26px; }
+.registration-card h2 { font-size:27px; margin:8px 0 15px; }
+.registration-card p { font-size:14px; line-height:1.7; }
+@media(max-width:760px) { .detail-section { padding:20px; } .detail-section p strong { min-width:135px; } }
+
+
+/* Shared role navigation active state */
+.site-nav .portal-nav{display:flex;align-items:center;gap:clamp(10px,1.45vw,23px);margin-right:auto;min-width:0}
+.site-nav .portal-nav .nav-login{position:relative;display:inline-flex;align-items:center;min-height:42px;padding:0 2px;white-space:nowrap;font-size:12px}
+.site-nav .portal-nav .nav-login.is-active{color:var(--text);font-weight:800}
+.site-nav .portal-nav .nav-login.is-active:after{content:"";position:absolute;left:0;right:0;bottom:2px;height:2px;border-radius:3px;background:var(--violet);box-shadow:0 0 12px rgba(139,92,246,.5)}
+.site-nav .nav-greeting{white-space:nowrap;font-size:12px}
+.site-nav .nav-logout-form{flex-shrink:0}
+.site-nav .nav-actions{min-width:0;gap:clamp(10px,1.4vw,18px)}
+@media(max-width:1050px){.site-nav{gap:18px}.site-nav .portal-nav{gap:10px}.site-nav .portal-nav .nav-login{font-size:11px}.site-nav .nav-greeting{display:none}}
+@media(max-width:760px){.site-nav .portal-nav{display:none}}
+
+/* Shared password visibility control */
+.password-toggle-wrap{position:relative;display:flex;align-items:center;width:100%;min-width:0}
+.password-toggle-wrap>input{width:100%;padding-right:48px!important}
+.password-visibility-toggle{position:absolute;right:9px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.password-visibility-toggle:hover{background:rgba(139,92,246,.13);color:var(--text)}
+.password-visibility-toggle svg{width:17px;height:17px}

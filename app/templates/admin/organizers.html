@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Organizer Management | MULTYVERS{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/organizers.css') }}">{% endblock %}
+{% block content %}
+<section class="org-page container">
+  <div class="org-heading">
+    <div><span class="eyebrow">ADMIN CONTROL CENTER</span><h1>Organizer <span>Management</span></h1><p>Create and manage the people who run campus events.</p></div>
+    <a class="button button-ghost" href="{{ url_for('portal_pages.admin_portal') }}">← Back to dashboard</a>
+  </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="org-flashes">{% for category, message in messages %}<div class="org-flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+  <div class="org-stats"><article><small>Total organizers</small><strong>{{ total }}</strong></article><article><small>Active accounts</small><strong>{{ active }}</strong></article></div>
+  <div class="org-layout">
+    <section class="org-panel org-create"><div class="panel-title"><div><span class="eyebrow">NEW ACCOUNT</span><h2>Create organizer</h2></div><i data-lucide="user-plus"></i></div>
+      <form method="POST" action="{{ url_for('organizer_management.index') }}" class="org-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="create">
+        <label>Full name<input name="name" maxlength="100" required placeholder="Organizer name"></label>
+        <label>Email address<input name="email" type="email" maxlength="254" required placeholder="organizer@multyvers.in" pattern="[^@\s]+@multyvers[.]in" title="Use an @multyvers.in email address"></label>
+        <label>Temporary password<input name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters"></label>
+        <button class="button button-full" type="submit">Create account <i data-lucide="arrow-right"></i></button>
+      </form>
+    </section>
+    <section class="org-panel org-list"><div class="panel-title"><div><span class="eyebrow">ACCOUNT DIRECTORY</span><h2>All organizers</h2></div><i data-lucide="users"></i></div>
+      <form class="org-search" method="GET"><i data-lucide="search"></i><input type="search" name="q" value="{{ query }}" placeholder="Search name or email"><button class="button button-sm" type="submit">Search</button>{% if query %}<a href="{{ url_for('organizer_management.index') }}">Clear</a>{% endif %}</form>
+      <div class="org-table-wrap"><table class="org-table"><thead><tr><th>Organizer</th><th>Events</th><th>Approval</th><th>Account</th><th>Manage</th></tr></thead><tbody>
+      {% for organizer in organizers %}<tr><td><form method="POST" class="org-edit-form" action="{{ url_for('organizer_management.index', q=query) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="edit"><input type="hidden" name="organizer_id" value="{{ organizer.user_id }}"><input name="name" aria-label="Organizer name" value="{{ organizer.name }}" required><input name="email" aria-label="Organizer email" type="email" value="{{ organizer.email }}" required><button class="text-action" type="submit">Save details</button></form></td><td>{{ organizer.event_count }}</td><td><span class="org-status {{ organizer.approval_status }}">{{ organizer.approval_status|title }}</span></td><td><span class="org-status {{ 'active' if organizer.is_active else 'inactive' }}">{{ 'Active' if organizer.is_active else 'Deactivated' }}</span></td><td>
+      {% if organizer.approval_status == 'pending' %}
+      <form method="POST" action="{{ url_for('organizer_management.index', q=query) }}" class="org-action-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="organizer_id" value="{{ organizer.user_id }}"><button name="action" value="approve" class="status-action" type="submit">Approve</button><button name="action" value="reject" class="status-action reject" type="submit" data-confirm="Reject this organizer request?">Reject</button></form>
+      {% endif %}
+      <form method="POST" action="{{ url_for('organizer_management.index', q=query) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="organizer_id" value="{{ organizer.user_id }}"><input type="hidden" name="action" value="{{ 'deactivate' if organizer.is_active else 'reactivate' }}"><button class="status-action" type="submit" data-confirm="{{ 'Deactivate this organizer? They will no longer be able to sign in.' if organizer.is_active else 'Reactivate this organizer account?' }}">{{ 'Deactivate' if organizer.is_active else 'Reactivate' }}</button></form><form method="POST" action="{{ url_for('organizer_management.index', q=query) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="organizer_id" value="{{ organizer.user_id }}"><input type="hidden" name="action" value="delete"><button class="status-action reject" type="submit" data-confirm="Permanently delete this organizer, their events, registrations and attendance records? This cannot be undone.">Delete</button></form></td></tr>
+      {% else %}<tr><td colspan="6" class="org-empty">{% if query %}No organizers match “{{ query }}”.{% else %}No organizer accounts yet. Create the first one using the form.{% endif %}</td></tr>{% endfor %}
+      </tbody></table></div>
+    </section>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script>if(window.lucide){lucide.createIcons();}</script>{% endblock %}

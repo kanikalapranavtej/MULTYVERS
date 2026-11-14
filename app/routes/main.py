@@ -1,4 +1,11 @@
-from flask import Blueprint, jsonify, current_app, render_template
+from flask import (
+    Blueprint,
+    jsonify,
+    current_app,
+    render_template,
+    redirect,
+    url_for
+)
 from flask_login import current_user
 
 from app.database import get_db
@@ -10,9 +17,15 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/", methods=["GET"])
 def home():
+
+    if not current_user.is_authenticated:
+        return redirect(url_for("auth.login"))
+
+    # Authenticated users should land in their role-specific portal, not the public landing page.
+    return redirect(url_for("portal_pages.dashboard"))
+
     db = get_db()
 
-    # Retrieve approved upcoming events.
     featured_events = db.execute("""
         SELECT
             e.event_id,
@@ -41,7 +54,6 @@ def home():
         LIMIT 6
     """).fetchall()
 
-    # Retrieve real event categories.
     categories = db.execute("""
         SELECT
             c.category_id,
@@ -56,7 +68,6 @@ def home():
         ORDER BY c.category_name
     """).fetchall()
 
-    # Real platform statistics.
     statistics = db.execute("""
         SELECT
             (SELECT COUNT(*) FROM users WHERE role = 'student')

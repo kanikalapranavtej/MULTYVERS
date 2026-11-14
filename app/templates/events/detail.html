@@ -26,9 +26,9 @@
 
                 <h2>Event information</h2>
 
-                <p><strong>Date:</strong> {{ event.starts_at }}</p>
+                <p><strong>Date:</strong> {{ event.starts_at_display }}</p>
 
-                <p><strong>Ends:</strong> {{ event.ends_at }}</p>
+                <p><strong>Ends:</strong> {{ event.ends_at_display }}</p>
 
                 <p>
                     <strong>Venue:</strong>
@@ -47,7 +47,7 @@
 
                 <p>
                     <strong>Registration deadline:</strong>
-                    {{ event.registration_deadline }}
+                    {{ event.registration_deadline_display }}
                 </p>
 
             </div>
@@ -80,7 +80,7 @@
 
             {% elif registration_status == "confirmed" %}
 
-                <p class="event-status">You are registered for this event.</p>
+                <p class="event-status" data-registration-feedback>You are registered for this event.</p>
 
                 <button
                     class="button button-full button-danger"
@@ -99,7 +99,7 @@
 
             {% elif can_register %}
 
-                <p>Secure your place at this event.</p>
+                <p data-registration-feedback>Secure your place at this event.</p>
 
                 <button
                     class="button button-full"

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Event Review | MULTYVERS{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/portals.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/event_workflows.css') }}"><meta name="csrf-token" content="{{ csrf_token() }}">{% endblock %}
+{% block content %}
+<section class="portal container" id="adminEventReview">
+  <div class="portal-head"><div><span class="eyebrow">ADMIN CONTROL CENTER</span><h1>Event review</h1><p>Review submitted events before they become visible to students.</p></div><a class="button button-secondary" href="{{ url_for('portal_pages.admin_portal') }}">Back to dashboard</a></div>
+  <div class="portal-panel">
+    <form method="get" class="portal-filter"><label for="eventStatus">Show status</label><select id="eventStatus" name="status" onchange="this.form.submit()"><option value="pending" {% if selected_status=='pending' %}selected{% endif %}>Pending</option><option value="approved" {% if selected_status=='approved' %}selected{% endif %}>Approved</option><option value="rejected" {% if selected_status=='rejected' %}selected{% endif %}>Rejected</option><option value="cancelled" {% if selected_status=='cancelled' %}selected{% endif %}>Cancelled</option><option value="all" {% if selected_status=='all' %}selected{% endif %}>All events</option></select></form>
+    <div class="portal-table-wrap"><table><thead><tr><th>Event</th><th>Organizer</th><th>Category / Venue</th><th>Date</th><th>Capacity</th><th>Registrations</th><th>Status / Action</th></tr></thead><tbody>
+    {% for e in events %}<tr><td><strong>{{ e.title }}</strong><br><small>{{ e.description or '' }}</small></td><td>{{ e.organizer_name }}</td><td>{{ e.category_name }}<br>{{ e.venue_name }}</td><td>{{ e.starts_at }}</td><td>{{ e.capacity }}</td><td>{{ e.registrations }}</td><td><span class="status-pill status-{{ e.status }}">{{ e.status|title }}</span>{% if e.status == 'pending' %}<div class="portal-actions"><button class="button button-small" data-review="approve" data-event-id="{{ e.event_id }}">Approve</button><button class="button button-small button-danger" data-review="reject" data-event-id="{{ e.event_id }}">Reject</button></div>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="7">No events found for this status.</td></tr>{% endfor %}
+    </tbody></table></div><p id="reviewMessage" role="status" class="portal-note"></p>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/admin_events.js') }}"></script>{% endblock %}

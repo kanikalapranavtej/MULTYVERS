@@ -522,3 +522,33 @@ td {
     }
 
 }
+.analytics-page {
+    width: min(100% - 48px, 1440px);
+    margin: 0 auto;
+    padding: 48px 0 72px;
+}
+.analytics-page .topbar h1 { font-size: clamp(1.8rem, 3vw, 2.5rem); }
+.analytics-page .panel,
+.analytics-page .stat-card { min-width: 0; }
+.analytics-page .table-wrapper { overflow-x: auto; }
+.analytics-page table { min-width: 760px; }
+@media (max-width: 760px) {
+    .analytics-page { width: min(100% - 28px, 1440px); padding-top: 30px; }
+    .analytics-page .topbar { align-items: flex-start; flex-direction: column; }
+    .analytics-page .topbar-actions { flex-wrap: wrap; }
+    .analytics-page .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .analytics-page .charts-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 460px) {
+    .analytics-page .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* MULTYVERS shared portal wrapper overrides */
+.analytics-page { max-width: 1240px; width: min(100% - 48px, 1240px); padding: 38px 0 76px; }
+.analytics-page .portal-head { display:flex; justify-content:space-between; align-items:center; gap:22px; margin-bottom:26px; }
+.analytics-page .portal-head h1 { color:var(--text); font-size:clamp(34px,4vw,52px); margin:8px 0; letter-spacing:-.05em; }
+.analytics-page .portal-head p { color:var(--muted); font-size:13px; line-height:1.6; }
+.analytics-page .portal-actions { display:flex; flex-wrap:wrap; gap:9px; justify-content:flex-end; }
+.analytics-page .stats-grid { margin-top:18px; }
+.analytics-page .message-box { margin:12px 0 18px; }
+@media(max-width:760px) { .analytics-page { width:calc(100% - 32px); padding-top:26px; } .analytics-page .portal-head { align-items:flex-start; flex-direction:column; } .analytics-page .portal-actions { justify-content:flex-start; } .analytics-page .portal-actions .button { flex:1 1 145px; } }

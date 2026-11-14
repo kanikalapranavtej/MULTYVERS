@@ -1,101 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
+{% block title %}Analytics Dashboard | MULTYVERS{% endblock %}
+{% block body_class %}analytics-body{% endblock %}
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portals.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
-    <title>MULTYVERS | Analytics Dashboard</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/analytics.css') }}">
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-
-<body>
-
-<div class="dashboard-container">
-
-    <!-- SIDEBAR -->
-
-    <aside class="sidebar">
-
-        <div class="brand">
-            <div class="brand-icon">M</div>
-            <span>MULTYVERS</span>
-        </div>
-
-        <div class="sidebar-label">WORKSPACE</div>
-
-        <nav class="sidebar-nav">
-
-            <a href="/analytics/dashboard" class="nav-link active">
-                <span>▦</span>
-                Analytics
-            </a>
-
-            <a href="/organizer/dashboard" class="nav-link">
-                <span>◈</span>
-                Dashboard
-            </a>
-
-            <a href="/events" class="nav-link">
-                <span>◇</span>
-                Events
-            </a>
-
-        </nav>
-
-        <div class="sidebar-bottom">
-            <div class="sidebar-label">PLATFORM</div>
-
-            <a href="/auth/logout" class="nav-link">
-                <span>↪</span>
-                Logout
-            </a>
-        </div>
-
-    </aside>
-
-
-    <!-- MAIN CONTENT -->
-
-    <main class="main-content">
-
-        <header class="topbar">
-
-            <div>
-                <p class="topbar-label">MULTYVERS / INSIGHTS</p>
-                <h1>Analytics Dashboard</h1>
-            </div>
-
-            <div class="topbar-actions">
-
-                <span class="live-indicator">
-                    <span></span>
-                    Live Data
-                </span>
-
-                <button id="refreshButton" class="icon-button">
-                    ↻
-                </button>
-
-                <button id="exportButton" class="export-button">
-                    ↓ Export CSV
-                </button>
-
-            </div>
-
+{% block content %}
+<section class="portal container analytics-page analytics-portal">
+        <header class="portal-head">
+            <div><span class="eyebrow">ORGANIZER WORKSPACE</span><h1>Analytics Dashboard</h1><p>Understand event performance, registrations and attendance across your events.</p></div>
+            <div class="portal-actions"><button id="refreshButton" class="button button-secondary" type="button">↻ Refresh</button><button id="exportButton" class="button" type="button">↓ Export CSV</button><a class="button button-secondary" href="{{ url_for('portal_pages.admin_portal') if current_user.role == 'admin' else url_for('portal_pages.organizer_portal') }}">← Back to dashboard</a></div>
         </header>
 
 
@@ -305,12 +223,10 @@
             MULTYVERS Analytics · Campus Event Management Platform
         </footer>
 
-    </main>
+    
+</section>
+{% endblock %}
 
-</div>
-
-
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
-
-</body>
-</html>
+{% endblock %}

@@ -11,8 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const availabilityForm = document.getElementById("availabilityForm");
     const availabilityVenue = document.getElementById("availabilityVenue");
-    const availabilityStart = document.getElementById("availabilityStart");
-    const availabilityEnd = document.getElementById("availabilityEnd");
+    const availabilityStartDate = document.getElementById("availabilityStartDate");
+    const availabilityStartTime = document.getElementById("availabilityStartTime");
+    const availabilityEndDate = document.getElementById("availabilityEndDate");
+    const availabilityEndTime = document.getElementById("availabilityEndTime");
     const availabilityResult = document.getElementById("availabilityResult");
 
     const csrfToken =
@@ -147,15 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("totalVenues").textContent =
             venues.length;
 
-        document.getElementById("totalCapacity").textContent =
-            venues.reduce(
-                (total, venue) => total + Number(venue.capacity),
-                0
-            ).toLocaleString();
-
-        document.getElementById("visibleVenues").textContent =
-            filteredVenues.length;
-
         tableBody.replaceChildren();
 
         if (filteredVenues.length === 0) {
@@ -227,6 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
         editingVenueId = null;
         form.reset();
         errorBox.textContent = "";
+        errorBox.hidden = true;
 
         document.getElementById("venueDialogTitle").textContent =
             "Add venue";
@@ -248,6 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.elements.capacity.value = venue.capacity;
 
         errorBox.textContent = "";
+        errorBox.hidden = true;
 
         document.getElementById("venueDialogTitle").textContent =
             "Edit venue";
@@ -263,6 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
 
         errorBox.textContent = "";
+        errorBox.hidden = true;
 
         const payload = {
             venue_name: form.elements.venue_name.value.trim(),
@@ -278,6 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
             errorBox.textContent =
                 "Enter valid venue details and a positive whole-number capacity.";
+            errorBox.hidden = false;
             return;
         }
 
@@ -305,6 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             errorBox.textContent = error.message;
+            errorBox.hidden = false;
         }
     });
 
@@ -343,8 +341,10 @@ document.addEventListener("DOMContentLoaded", () => {
         availabilityResult.textContent = "Checking availability...";
 
         const venueId = availabilityVenue.value;
-        const start = availabilityStart.value;
-        const end = availabilityEnd.value;
+        const start = availabilityStartDate.value && availabilityStartTime.value
+            ? `${availabilityStartDate.value}T${availabilityStartTime.value}` : "";
+        const end = availabilityEndDate.value && availabilityEndTime.value
+            ? `${availabilityEndDate.value}T${availabilityEndTime.value}` : "";
 
         if (!venueId || !start || !end) {
             availabilityResult.textContent =

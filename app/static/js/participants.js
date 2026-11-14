@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const totalParticipants = document.getElementById("totalParticipants");
     const presentParticipants = document.getElementById("presentParticipants");
     const absentParticipants = document.getElementById("absentParticipants");
-    const currentPage = document.getElementById("currentPage");
 
     const participantHeading = document.getElementById("participantHeading");
     const participantCount = document.getElementById("participantCount");
@@ -79,6 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
         tableBody.replaceChildren();
 
         if (!participants.length) {
+            presentParticipants.textContent = "0";
+            absentParticipants.textContent = "0";
             const row = document.createElement("tr");
             const cell = document.createElement("td");
 
@@ -111,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (participant.attendance_status === "present") {
                 present++;
-            } else {
+            } else if (participant.attendance_status === "absent") {
                 absent++;
             }
 
@@ -140,9 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         totalParticipants.textContent =
             pagination.total.toLocaleString();
-
-        currentPage.textContent =
-            `${page} / ${totalPages}`;
 
         paginationInfo.textContent =
             `Page ${page} of ${totalPages}`;
@@ -223,7 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
             totalParticipants.textContent = "0";
             presentParticipants.textContent = "0";
             absentParticipants.textContent = "0";
-            currentPage.textContent = "0 / 0";
 
             participantCount.textContent = "Select an event";
             paginationInfo.textContent = "Page 0 of 0";

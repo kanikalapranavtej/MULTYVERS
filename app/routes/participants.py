@@ -32,6 +32,7 @@ def safe_csv_value(value):
 # PARTICIPANT MANAGEMENT PAGE
 # --------------------------------------------------
 
+@participants_bp.route("/organizer/participants", methods=["GET"])
 @participants_bp.route("/manage", methods=["GET"])
 @role_required("organizer", "admin")
 def participant_management_page():
@@ -150,7 +151,8 @@ def get_event_participants(event_id):
             r.registered_at,
             CASE
                 WHEN a.attendance_id IS NOT NULL THEN 'present'
-                ELSE 'absent'
+                WHEN datetime(e.ends_at) <= datetime('now', 'localtime') THEN 'absent'
+                ELSE 'pending'
             END AS attendance_status,
             a.marked_at AS attendance_time
         FROM registrations r
@@ -158,6 +160,8 @@ def get_event_participants(event_id):
             ON u.user_id = r.user_id
         LEFT JOIN attendance a
             ON a.registration_id = r.registration_id
+        JOIN events e
+            ON e.event_id = r.event_id
         WHERE {where_clause}
         ORDER BY r.registered_at DESC
         LIMIT ? OFFSET ?
@@ -221,7 +225,8 @@ def export_event_participants(event_id):
             r.registered_at,
             CASE
                 WHEN a.attendance_id IS NOT NULL THEN 'Present'
-                ELSE 'Absent'
+                WHEN datetime(e.ends_at) <= datetime('now', 'localtime') THEN 'Absent'
+                ELSE 'Pending'
             END AS attendance_status,
             a.marked_at
         FROM registrations r
@@ -229,6 +234,8 @@ def export_event_participants(event_id):
             ON u.user_id = r.user_id
         LEFT JOIN attendance a
             ON a.registration_id = r.registration_id
+        JOIN events e
+            ON e.event_id = r.event_id
         WHERE r.event_id = ?
     """
 

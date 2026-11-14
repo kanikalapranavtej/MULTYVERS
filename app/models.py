@@ -16,7 +16,9 @@ class User(UserMixin):
         email,
         password_hash,
         role,
-        created_at
+        created_at,
+        is_active=1,
+        approval_status="approved"
     ):
 
         self.id = user_id
@@ -25,6 +27,27 @@ class User(UserMixin):
         self.password_hash = password_hash
         self.role = role
         self.created_at = created_at
+
+        self._account_active = bool(is_active)
+        self.approval_status = approval_status
+
+    @property
+    def is_active(self):
+        """
+        Return whether the user account is active.
+        """
+
+        return self._account_active and (
+            self.role != "organizer" or self.approval_status == "approved"
+        )
+
+    @is_active.setter
+    def is_active(self, value):
+        """
+        Allow account status to be updated.
+        """
+
+        self._account_active = bool(value)
 
     @classmethod
     def from_row(cls, row):
@@ -41,7 +64,9 @@ class User(UserMixin):
             email=row["email"],
             password_hash=row["password_hash"],
             role=row["role"],
-            created_at=row["created_at"]
+            created_at=row["created_at"],
+            is_active=row["is_active"] if "is_active" in row.keys() else 1,
+            approval_status=(row["approval_status"] if "approval_status" in row.keys() else "approved")
         )
 
     @classmethod
@@ -61,7 +86,7 @@ class User(UserMixin):
         row = db.execute(
             """
             SELECT user_id, name, email,
-                   password_hash, role, created_at
+                   password_hash, role, created_at, is_active, approval_status
             FROM users
             WHERE user_id = ?
             """,
@@ -81,7 +106,7 @@ class User(UserMixin):
         row = db.execute(
             """
             SELECT user_id, name, email,
-                   password_hash, role, created_at
+                   password_hash, role, created_at, is_active, approval_status
             FROM users
             WHERE email = ?
             """,

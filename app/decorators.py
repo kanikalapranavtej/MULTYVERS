@@ -15,6 +15,9 @@ def role_required(*roles):
         @login_required
         def decorated_function(*args, **kwargs):
 
+            if not current_user.is_active:
+                abort(403)
+
             if current_user.role not in roles:
                 abort(403)
 

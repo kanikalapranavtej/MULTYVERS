@@ -343,3 +343,46 @@ def test_participant_csv_prevents_formula_injection(client, app):
     content = response.data.decode("utf-8-sig")
 
     assert "'=HYPERLINK" in content
+
+def test_participant_attendance_is_pending_until_event_ends(client, app):
+    with sqlite3.connect(app.config["DATABASE"]) as connection:
+        connection.execute("""
+            UPDATE events
+            SET starts_at = '2099-01-01T10:00:00',
+                ends_at = '2099-01-01T12:00:00'
+            WHERE event_id = 1
+        """)
+        connection.execute("""
+            INSERT OR IGNORE INTO registrations (user_id, event_id, status)
+            VALUES (2, 1, 'confirmed')
+        """)
+        connection.commit()
+
+    login_as(client, "organizer")
+    response = client.get("/api/events/1/participants")
+    assert response.status_code == 200
+    records = response.get_json()["participants"]
+    assert records
+    assert records[0]["attendance_status"] == "pending"
+
+
+def test_participant_attendance_becomes_absent_after_event_ends(client, app):
+    with sqlite3.connect(app.config["DATABASE"]) as connection:
+        connection.execute("""
+            UPDATE events
+            SET starts_at = '2000-01-01T10:00:00',
+                ends_at = '2000-01-01T12:00:00'
+            WHERE event_id = 1
+        """)
+        connection.execute("""
+            INSERT OR IGNORE INTO registrations (user_id, event_id, status)
+            VALUES (2, 1, 'confirmed')
+        """)
+        connection.commit()
+
+    login_as(client, "organizer")
+    response = client.get("/api/events/1/participants")
+    assert response.status_code == 200
+    records = response.get_json()["participants"]
+    assert records
+    assert records[0]["attendance_status"] == "absent"

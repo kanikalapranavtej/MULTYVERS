@@ -9,7 +9,10 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL
         CHECK(role IN ('student', 'organizer', 'admin')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+    approval_status TEXT NOT NULL DEFAULT 'approved'
+        CHECK (approval_status IN ('pending', 'approved', 'rejected'))
 );
 
 

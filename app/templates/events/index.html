@@ -1,23 +1,19 @@
 {% extends "base.html" %}
 
 {% block title %}Explore Events | MULTYVERS{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/portals.css') }}">{% endblock %}
 
 {% block content %}
 
-<section class="section container">
-
-    <div class="section-heading">
-        <div>
-            <span class="kicker">Discover experiences</span>
-            <h1>Explore <em>events.</em></h1>
-            <p class="hero-lead">
-                Find experiences happening across university communities.
-            </p>
-        </div>
+<section class="section container event-discovery-page">
+    <div class="event-discovery-hero">
+      <div class="event-discovery-hero-copy"><span class="kicker">STUDENT EVENT SPACE</span><h1>Discover what’s <em>happening.</em></h1><p class="hero-lead">Explore approved campus events, find your community and reserve your place in experiences that matter.</p><div class="event-hero-meta"><span>Campus experiences</span><span>·</span><span>Events and activities</span></div></div>
+      {% if current_user.is_authenticated and current_user.role == 'student' %}<a class="button button-secondary event-dashboard-return" href="{{ url_for('portal_pages.student_portal') }}">← Back to dashboard</a>{% elif current_user.is_authenticated %}<a class="button button-secondary event-dashboard-return" href="{{ url_for('portal_pages.dashboard') }}">← Back to dashboard</a>{% else %}<a class="button button-secondary event-dashboard-return" href="{{ url_for('auth.login') }}">Log in</a>{% endif %}
     </div>
-
     <!-- EVENT FILTERS -->
 
+    <section class="event-filter-panel">
+    <div class="filter-panel-heading"><span class="kicker">FIND YOUR NEXT EXPERIENCE</span><h2>Search and filter events</h2><p>Search by event name, choose a category, or sort the approved events.</p></div>
     <form method="GET"
           action="{{ url_for('pages.event_listing') }}"
           class="filter-panel">
@@ -57,28 +53,6 @@
         </div>
 
         <div class="filter-group">
-            <label class="filter-label" for="start-date">From date</label>
-            <input
-                id="start-date"
-                type="date"
-                name="start_date"
-                value="{{ start_date }}"
-                class="select-control"
-            >
-        </div>
-
-        <div class="filter-group">
-            <label class="filter-label" for="end-date">To date</label>
-            <input
-                id="end-date"
-                type="date"
-                name="end_date"
-                value="{{ end_date }}"
-                class="select-control"
-            >
-        </div>
-
-        <div class="filter-group">
             <label class="filter-label" for="sort-filter">Sort by</label>
             <select id="sort-filter"
                     name="sort"
@@ -114,8 +88,12 @@
         </div>
 
     </form>
+    </section>
 
-    <!-- RESULTS -->
+
+    <!-- APPROVED EVENTS -->
+    <section class="event-results-section" aria-labelledby="approved-events-heading">
+      <div class="section-heading event-results-heading"><div><span class="kicker">CAMPUS CALENDAR</span><h2 id="approved-events-heading">Approved events</h2><p class="event-section-copy">Explore the experiences currently open to students.</p></div></div>
 
     <div class="results-toolbar">
         <p class="event-meta">
@@ -146,6 +124,7 @@
         {% endfor %}
 
     </div>
+    </section>
 
     <!-- PAGINATION -->
 
@@ -161,8 +140,6 @@
                     search=search,
                     category_id=selected_category,
                     sort=sort,
-                    start_date=start_date,
-                    end_date=end_date,
                     page=page-1
                ) }}">
                 Previous
@@ -182,8 +159,6 @@
                     search=search,
                     category_id=selected_category,
                     sort=sort,
-                    start_date=start_date,
-                    end_date=end_date,
                     page=page+1
                ) }}">
                 Next

@@ -1,0 +1,23 @@
+/* Additional workflow components; existing MULTYVERS theme variables are reused. */
+.portal-form,.portal-filter{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px}
+.portal-form label,.portal-filter label{display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:12px;margin-bottom:16px}
+.portal-form input,.portal-form textarea,.portal-form select,.portal-filter select{width:100%;box-sizing:border-box;background:var(--surface-2,rgba(255,255,255,.05));color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px;font:inherit}
+.portal-form textarea{resize:vertical}.portal-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}
+.portal-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}.portal-panel-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px}.portal-panel-head h2{margin:0}.portal-panel-head a,.portal td a{color:var(--cyan)}
+.button-secondary{background:transparent;border:1px solid var(--border)}.button-small{padding:7px 11px;font-size:11px}.button-danger{background:#9f3349}.text-button{border:0;background:transparent;color:#ff9a55;cursor:pointer;font:inherit;margin-left:8px}
+.status-pill{display:inline-block;padding:5px 9px;border-radius:999px;font-size:10px;background:var(--surface-2,rgba(255,255,255,.07))}.status-approved{color:#4bd49b;background:rgba(38,190,128,.12)}.status-pending{color:#e9bd59;background:rgba(230,180,60,.12)}.status-rejected,.status-cancelled{color:#ff8795;background:rgba(230,70,90,.12)}
+.portal-success{color:#4bd49b;font-size:12px}.portal-error{color:#ff8795;font-size:12px}.portal-filter{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:12px 16px}.portal-filter label{margin:0}.portal-filter select{width:auto;min-width:180px}
+@media(max-width:650px){.portal-form-grid{grid-template-columns:1fr}.portal-panel-head{align-items:flex-start;flex-direction:column}.portal-filter{align-items:flex-start;flex-direction:column}.portal-filter select{width:100%}}
+
+.datetime-field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;color:var(--muted);font-size:12px}.date-time-pair{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(110px,.7fr);gap:8px}.date-time-pair input{min-width:0;width:100%;box-sizing:border-box;color-scheme:dark}@media(max-width:650px){.date-time-pair{grid-template-columns:1fr 1fr}}
+
+/* Organizer event venue availability panel */
+.venue-check-panel{margin:24px 0;padding:22px;border:1px solid var(--border);border-radius:16px;background:var(--surface)}
+.venue-check-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}
+.venue-check-grid>div{display:grid;gap:7px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2);min-width:0}
+.venue-check-grid strong{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.venue-check-grid span{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+#venueAvailabilityMessage{margin:14px 0 0;font-weight:600}
+#venueAvailabilityMessage.is-available{color:#34d399}
+#venueAvailabilityMessage.is-conflict,#venueAvailabilityMessage.is-error{color:#fb7185}
+@media(max-width:700px){.venue-check-grid{grid-template-columns:1fr}}

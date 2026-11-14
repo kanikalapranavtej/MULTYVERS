@@ -13,7 +13,7 @@ PER_PAGE = 9
 SORT_OPTIONS = {
     "upcoming": "datetime(e.starts_at) ASC, e.event_id ASC",
     "latest": "datetime(e.created_at) DESC, e.event_id DESC",
-    "popular": "registered_count DESC, e.event_id ASC",
+    "popular": "registered_count DESC, e.event_id ASC"
 }
 
 
@@ -239,6 +239,17 @@ def event_detail(event_id):
         abort(404)
 
     event = dict(event)
+
+    def display_datetime(value):
+        try:
+            parsed = datetime.fromisoformat(value)
+            return parsed.astimezone().strftime("%d %b %Y, %I:%M %p")
+        except (ValueError, TypeError):
+            return value
+
+    event["starts_at_display"] = display_datetime(event["starts_at"])
+    event["ends_at_display"] = display_datetime(event["ends_at"])
+    event["registration_deadline_display"] = display_datetime(event["registration_deadline"])
 
     registration_status = None
 

@@ -4,8 +4,6 @@
 
 {% block body_class %}dashboard-body{% endblock %}
 
-{% block nav %}{% endblock %}
-{% block footer %}{% endblock %}
 
 {% block head %}
 <link rel="stylesheet"
@@ -21,7 +19,7 @@
     <header class="attendance-header">
 
         <div>
-            <a href="/student/dashboard" class="back-link">
+            <a href="{{ url_for('portal_pages.student_portal') }}" class="back-link">
                 ← Back to Dashboard
             </a>
 

@@ -177,3 +177,53 @@
         flex-direction: column;
     }
 }
+
+.participant-status.pending {
+    color: #8edcf0;
+    background: rgba(85, 214, 232, .12);
+    border: 1px solid rgba(85, 214, 232, .22);
+}
+.participant-stats {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+}
+.participant-stats .metric-card small {
+    line-height: 1.5;
+    min-height: 34px;
+}
+@media (max-width: 1050px) {
+    .participant-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 650px) {
+    .participant-control-grid { grid-template-columns: 1fr; }
+    .participant-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+    .participant-stats { grid-template-columns: 1fr; }
+}
+
+/* Unified MULTYVERS portal layout (no duplicate left sidebar). */
+.participant-page { padding-top: 42px; }
+.participant-page-head { align-items: center; }
+.participant-page-head h1 { font-size: clamp(34px, 4.2vw, 54px); line-height: 1.08; }
+.participant-page-head h1 em { color: var(--violet, #9b6bff); font-style: normal; }
+.participant-page .portal-panel { margin-top: 20px; }
+.participant-page .participant-controls { padding: 25px; }
+.participant-page .portal-panel-head h2 { margin: 6px 0 0; font-size: 23px; }
+.participant-page .portal-panel-head .portal-note { margin: 5px 0 0; }
+.participant-page .participant-stats { margin: 18px 0; }
+.participant-page .metric-card { min-height: 130px; padding: 21px; }
+.participant-page .metric-card small { display: block; min-height: 34px; line-height: 1.5; color: var(--muted); font-size: 12px; }
+.participant-page .metric-card strong { display: block; margin-top: 9px; font-size: 30px; }
+.participant-page .participant-control-grid select { min-height: 48px; font-size: 13px; }
+.participant-page .participant-control-grid label { font-size: 12px; }
+.participant-page .participant-search { width: min(100%, 520px); min-height: 48px; }
+.participant-page .participant-search input { font-size: 13px; }
+.participant-page .portal th, .participant-page .portal td { font-size: 13px; padding: 15px 13px; }
+.participant-page .participant-message { font-size: 13px; }
+.participant-page .participant-count, .participant-page .participant-pagination { font-size: 12px; }
+@media(max-width:760px) { .participant-page-head { align-items: flex-start; } .participant-page-head > a { width: 100%; justify-content: center; } }
+
+.participant-page .participant-pagination button { min-width:104px; font-size:12px; }
+.participant-page .participant-status { font-size:11px; padding:6px 10px; }
+.participant-page .responsive-table { overflow-x:auto; }

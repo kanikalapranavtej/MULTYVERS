@@ -27,12 +27,20 @@ def create_app(config_class=Config):
     from app.routes.auth import auth_bp
     from app.routes.events import events_bp
     from app.routes.registrations import registrations_bp
+    from app.routes.organizer_management import organizer_management_bp
+    from app.routes.portal_pages import portal_pages_bp
+    from app.routes.category_pages import category_pages_bp
+    from app.routes.admin_students import admin_students_bp
 
     # Core application routes
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(events_bp)
     app.register_blueprint(registrations_bp)
+    app.register_blueprint(organizer_management_bp)
+    app.register_blueprint(portal_pages_bp)
+    app.register_blueprint(category_pages_bp)
+    app.register_blueprint(admin_students_bp)
 
     # Feature API routes
     app.register_blueprint(venues_bp)

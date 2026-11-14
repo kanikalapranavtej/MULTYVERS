@@ -4,8 +4,6 @@
 
 {% block body_class %}dashboard-body{% endblock %}
 
-{% block nav %}{% endblock %}
-{% block footer %}{% endblock %}
 
 {% block head %}
 <link rel="stylesheet"
@@ -15,13 +13,11 @@
 
 {% block content %}
 
-<div class="attendance-page">
+<div class="attendance-page container">
 
     <header class="attendance-header">
         <div>
-            <a href="/organizer/dashboard" class="back-link">
-                ← Back to Dashboard
-            </a>
+            <a href="{{ url_for('portal_pages.admin_portal') if current_user.role == 'admin' else url_for('portal_pages.organizer_portal') }}" class="back-link">← Back to dashboard</a>
 
             <p class="eyebrow">EVENT MANAGEMENT</p>
 

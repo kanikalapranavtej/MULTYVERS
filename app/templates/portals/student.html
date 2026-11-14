@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block title %}Student Dashboard | MULTYVERS{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/portals.css') }}"><meta name="csrf-token" content="{{ csrf_token() }}">{% endblock %}
+{% block content %}<section class="portal container">
+<div class="portal-head"><div><span class="eyebrow">STUDENT SPACE</span><h1>Welcome, {{ current_user.name }}</h1><p>Your campus events, registrations and experiences in one place.</p></div><a class="button" href="{{ url_for('pages.event_listing') }}">Explore events</a></div>
+<div class="portal-stats student-summary-stats"><article><small>Total Registrations</small><strong>{{ stats.total or 0 }}</strong><span class="metric-caption">All active bookings in your account</span></article></div>
+<section class="portal-panel" id="my-registrations"><div class="portal-panel-head"><div><h2>My registrations</h2><p class="portal-note">Review your event bookings and cancel a registration if your plans change.</p></div><a class="button button-secondary" href="{{ url_for('pages.event_listing') }}">Find events</a></div>
+<p id="studentRegistrationMessage" class="portal-note" role="status" aria-live="polite"></p>
+<div class="portal-table-wrap"><table><thead><tr><th>Event</th><th>Date</th><th>Venue</th><th>Registration</th><th>Action</th></tr></thead><tbody>
+{% for item in registrations %}<tr><td><a href="{{ url_for('pages.event_detail', event_id=item.event_id) }}">{{ item.title }}</a></td><td>{{ item.starts_at[:10] }}{% if item.starts_at and item.starts_at|length >= 16 %}<br><small>{{ item.starts_at[11:16] }}</small>{% endif %}</td><td>{{ item.venue_name }}<br><small>{{ item.location }}</small></td><td>{{ item.registration_status|title }}</td><td>{% if item.registration_status == 'confirmed' %}<button class="text-button" type="button" data-cancel-registration="{{ item.event_id }}">Cancel registration</button>{% else %}—{% endif %}</td></tr>
+{% else %}<tr><td colspan="5">You have not registered for any events yet. Explore upcoming campus events to get started.</td></tr>{% endfor %}</tbody></table></div></section></section>
+{% endblock %}{% block scripts %}<script src="{{ url_for('static', filename='js/student_portal.js') }}"></script>{% endblock %}

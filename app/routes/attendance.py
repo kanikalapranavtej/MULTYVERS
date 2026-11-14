@@ -272,8 +272,8 @@ def get_event_attendance(event_id):
             a.attendance_id,
             a.event_id,
             a.user_id,
-            u.name AS student_name,
-            u.email AS student_email,
+            u.name AS name,
+            u.email AS email,
             a.marked_at,
             a.method
         FROM attendance a

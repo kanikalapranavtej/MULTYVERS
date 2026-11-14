@@ -266,3 +266,12 @@
     }
 
 }
+.attendance-page { width:min(100% - 48px, 1180px); padding:38px 0 76px; }
+.attendance-header h1 { font-size:clamp(36px,4.5vw,54px); letter-spacing:-.05em; }
+.attendance-header .back-link { display:inline-flex; align-items:center; padding:10px 14px; border:1px solid rgba(167,139,250,.24); border-radius:10px; background:rgba(24,24,45,.7); margin-bottom:24px; font-size:13px; }
+.attendance-card { padding:clamp(20px,3vw,30px); }
+.attendance-card label { font-size:13px; }
+.attendance-card select { min-height:48px; font-size:14px; }
+@media(max-width:600px) { .attendance-page { width:calc(100% - 30px); padding-top:26px; } .attendance-card { padding:18px; } }
+
+.attendance-page .attendance-header{padding-bottom:22px;border-bottom:1px solid var(--border);margin-bottom:24px}.attendance-page .attendance-card{margin-top:20px}.attendance-page .section-heading{padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:18px}

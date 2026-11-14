@@ -46,9 +46,8 @@ def client(app):
 def test_home_endpoint(client):
     response = client.get("/")
 
-    assert response.status_code == 200
-    assert response.content_type.startswith("text/html")
-    assert b"MULTYVERS" in response.data
+    assert response.status_code == 302
+    assert response.location.endswith("/auth/login")
 
 
 def test_health_endpoint(client):

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Student Management | MULTYVERS{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/portals.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/admin_management.css') }}">{% endblock %}
+{% block content %}
+<section class="portal container admin-management-page">
+<div class="portal-head"><div><span class="eyebrow">ADMIN CONTROL CENTER</span><h1>Student management</h1><p>Find student accounts and manage platform access.</p></div><a class="button button-secondary" href="{{ url_for('portal_pages.admin_portal') }}">Back to dashboard</a></div>
+{% with messages=get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<p class="{{ 'portal-success' if category=='success' else 'portal-error' }}">{{ message }}</p>{% endfor %}{% endwith %}
+<div class="portal-stats"><article><small>Total students</small><strong>{{ total }}</strong></article><article><small>Active accounts</small><strong>{{ active }}</strong></article><article><small>Deactivated accounts</small><strong>{{ total-active }}</strong></article></div>
+<section class="portal-panel"><div class="portal-panel-head"><h2>Student directory</h2><span class="status-pill">{{ students|length }} shown</span></div>
+<form method="get" class="management-search"><label for="studentSearch">Search by name or email</label><input id="studentSearch" type="search" name="q" value="{{ query }}" placeholder="Search students"></form>
+<div class="portal-table-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Joined</th><th>Registrations</th><th>Account</th><th>Action</th></tr></thead><tbody>
+{% for student in students %}<tr><td>{{ student.name }}</td><td>{{ student.email }}</td><td>{{ student.created_at }}</td><td>{{ student.registrations }}</td><td><span class="status-pill {{ 'status-approved' if student.is_active else 'status-rejected' }}">{{ 'Active' if student.is_active else 'Deactivated' }}</span></td><td><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="student_id" value="{{ student.user_id }}"><input type="hidden" name="action" value="{{ 'deactivate' if student.is_active else 'reactivate' }}"><button class="text-button" type="submit">{{ 'Deactivate' if student.is_active else 'Reactivate' }}</button></form></td></tr>
+{% else %}<tr><td colspan="6">No students match this search.</td></tr>{% endfor %}</tbody></table></div></section></section>
+{% endblock %}
