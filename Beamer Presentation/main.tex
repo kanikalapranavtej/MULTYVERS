@@ -1,0 +1,598 @@
+
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{ragged2e}
+\usetikzlibrary{calc}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
+\setbeamersize{text margin left=0.72cm,text margin right=0.72cm}
+
+\definecolor{cream}{HTML}{F6EFE2}
+\definecolor{navy}{HTML}{303D78}
+\definecolor{purple}{HTML}{9147D8}
+\definecolor{cyan}{HTML}{159FCB}
+\definecolor{ink}{HTML}{172033}
+\definecolor{pale}{HTML}{EAF4F7}
+\definecolor{paleviolet}{HTML}{F0EAF8}
+\definecolor{muted}{HTML}{596477}
+
+\setbeamercolor{normal text}{fg=ink,bg=cream}
+\setbeamercolor{background canvas}{bg=cream}
+\setbeamercolor{itemize item}{fg=cyan}
+\setbeamercolor{itemize subitem}{fg=purple}
+\setbeamercolor{challengebody}{fg=ink,bg=white}
+\setbeamercolor{solutionbox}{fg=white,bg=navy}
+\setbeamercolor{studentbox}{fg=ink,bg=pale}
+\setbeamercolor{organizerbox}{fg=ink,bg=paleviolet}
+\setbeamercolor{adminbox}{fg=ink,bg=white}
+
+\newcommand{\basedecor}{
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[navy] (current page.north west) rectangle
+    ([xshift=0.27cm]current page.south west);
+  \fill[navy] ([xshift=-0.42cm]current page.north east)
+    rectangle (current page.south east);
+  
+\end{tikzpicture}
+}
+
+\newcommand{\topbar}[2]{
+\begin{beamercolorbox}[wd=\linewidth,ht=0.55cm,dp=0.12cm,
+                       leftskip=0.18cm,rightskip=0.18cm,
+                       rounded=true]{}
+  \colorbox{navy}{\parbox[c][0.55cm][c]{\dimexpr\linewidth-0.36cm\relax}{
+    \hspace{0.10cm}\textcolor{white}{\bfseries\large #1}
+    \hfill\textcolor{cream}{\scriptsize #2}\hspace{0.10cm}}}
+\end{beamercolorbox}
+}
+
+\begin{document}
+
+
+%================================================
+% SLIDE 1: TITLE
+%================================================
+\begin{frame}[plain]
+
+  \vspace*{0.60cm}
+
+  \begin{center}
+
+    {\color{navy}\small\bfseries
+    CS202C \quad | \quad SOFTWARE SYSTEMS LAB}
+
+    \\[0.48cm]
+
+    \begin{tikzpicture}
+
+      \node[
+        fill=navy,
+        rounded corners=5pt,
+        minimum width=0.82\paperwidth,
+        minimum height=1.62cm,
+        align=center,
+        inner xsep=0.30cm
+      ] {
+
+        \begin{minipage}{0.78\paperwidth}
+          \centering
+
+          {\color{white}
+          \fontsize{30}{34}\selectfont
+          \bfseries MULTYVERS}
+
+          \\[0.10cm]
+
+          {\color{cream}\large
+          Campus Event Management Platform}
+
+        \end{minipage}
+      };
+
+      \draw[cyan,line width=1.5pt]
+      (-5.1,-0.91) -- (5.1,-0.91);
+
+    \end{tikzpicture}
+
+    \vspace{0.55cm}
+
+    {\large\bfseries
+    Indian Institute of Technology Dharwad}
+
+    \\[0.12cm]
+
+    {\normalsize Project Presentation}
+
+  \end{center}
+
+  \vfill
+
+  \noindent
+  \begin{minipage}[t]{0.48\textwidth}
+
+    \raggedright
+
+    {\color{muted}\normalsize
+    November 16, 2026}
+
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.42\textwidth}
+
+    \raggedleft
+
+    {\color{muted}\normalsize
+    MC25BT006\\[3pt]
+    MC25BT019\\[3pt]
+    MC25BT003\\[3pt]
+    MC25BT010\\[3pt]
+    MC25BT025}
+
+  \end{minipage}
+
+  \vspace{0.25cm}
+
+  \basedecor
+
+\end{frame}
+
+
+%================================================
+% SLIDE 2: PROBLEM, OBJECTIVES AND SOLUTION
+%================================================
+\begin{frame}[plain]
+  \topbar{Problem Statement \& Proposed Solution}{MULTYVERS}
+
+  \vspace{0.12cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.485\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.12cm]{challengebody}
+        \colorbox{navy}{\parbox[c][0.43cm][c]{\dimexpr\linewidth-0.24cm\relax}{
+          \hspace{0.10cm}\textcolor{white}{\bfseries\small THE CHALLENGE:}
+        }}
+        \\[3pt]
+
+        {\scriptsize\color{muted}Campus event management requires coordination of:}\\[2pt]
+        {\scriptsize
+        \textcolor{cyan}{\textbullet}\ Events and venue allocation.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Event schedules and time slots.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Student registrations.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Participant information.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Attendance and event performance.\\
+        \textcolor{cyan}{\textbullet}\ Administrative supervision.}
+      \end{beamercolorbox}
+    \end{column}
+
+    \begin{column}{0.485\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.12cm]{challengebody}
+        \colorbox{cyan!85!navy}{\parbox[c][0.43cm][c]{\dimexpr\linewidth-0.24cm\relax}{
+          \hspace{0.10cm}\textcolor{white}{\bfseries\small OUR OBJECTIVE:}
+        }}
+        \vspace{0.08cm}
+
+        
+        {\scriptsize
+        \textcolor{cyan}{\textbullet}\ Centralize campus event activities.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Simplify event discovery and registration.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Organize events and participants.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Prevent venue scheduling conflicts.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Enable administrative approvals and controls.\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Support attendance tracking and reports.} \\
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.10cm}
+  \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0cm]{solutionbox}
+    \begin{columns}[c,onlytextwidth]
+      \begin{column}{0.43\textwidth}
+        {\color{cyan}\bfseries\scriptsize OUR PROPOSED SOLUTION}\\[-1pt]
+        {\color{white}\bfseries\large MULTYVERS}
+      \end{column}
+      \begin{column}{0.55\textwidth}
+        \raggedleft{\color{cream}\small Centralized, role-based platform}
+      \end{column}
+    \end{columns}
+  \end{beamercolorbox}
+
+  \vspace{0.10cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.32\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.02cm,center]{studentbox}
+        {\color{navy}\bfseries\small STUDENT PORTAL}\\[3pt]
+        {\scriptsize Discover events}\\
+        {\scriptsize Register \quad|\quad QR Access}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.02cm,center]{organizerbox}
+        {\color{navy}\bfseries\small ORGANIZER PORTAL}\\[3pt]
+        {\scriptsize Create and manage events}\\
+        {\scriptsize Participants \quad|\quad Attendance}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.02cm,center]{adminbox}
+        {\color{navy}\bfseries\small ADMIN PORTAL}\\[3pt]
+        {\scriptsize Manage users and venues}\\
+        {\scriptsize Review \quad| \quad approve events}
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+
+  \vfill
+  \basedecor
+\end{frame}
+
+%================================================
+% SLIDE 3: COMPLETE PROJECT OVERVIEW
+%================================================
+\begin{frame}[plain]
+   \topbar{Project Overview}{MULTYVERS}
+
+  \vspace{0.25cm}
+
+
+  \begin{beamercolorbox}[
+    wd=\linewidth,
+    rounded=true,
+    sep=0.10cm
+  ]{challengebody}
+
+   \centering
+
+    \vspace{0.05cm}
+    \begin{tikzpicture}[
+      lbl/.style={
+        rounded corners=3pt,
+        fill=navy,
+        text=white,
+        minimum width=1.90cm,
+        minimum height=1.10cm,
+        text width=1.80cm,
+        align=center,
+        font=\fontsize{6.5}{7.5}\selectfont\bfseries,
+        inner sep=2pt
+      },
+      stage/.style={
+        rounded corners=3pt,
+        draw=cyan!70!navy,
+        fill=pale,
+        line width=0.65pt,
+        minimum width=1.90cm,
+        minimum height=1.10cm,
+        text width=1.80cm,
+        align=center,
+        font=\fontsize{6.5}{7.5}\selectfont\bfseries,
+        inner sep=2pt
+      },
+      stagealt/.style={
+        stage,
+        draw=purple!75!navy,
+        fill=paleviolet
+      },
+      flowarrow/.style={
+        -{Stealth[length=1.7mm]},
+        line width=0.8pt,
+        draw=purple
+      }
+    ]
+
+      \node[lbl] at (0.95,0) {APPROVAL\\WORKFLOW};
+
+      \node[stage]    (a1) at (3.30,0)  {{\color{navy}01}\\STUDENT / ORGANIZER\\REGISTRATION};
+      \node[stagealt] (a2) at (5.60,0)  {{\color{navy}02}\\ADMIN\\APPROVAL};
+      \node[stage]    (a3) at (7.90,0)  {{\color{navy}03}\\ORGANIZER\\CREATES EVENT};
+      \node[stagealt] (a4) at (10.20,0) {{\color{navy}04}\\EVENT\\VALIDATION};
+      \node[stage]    (a5) at (12.50,0) {{\color{navy}05}\\ADMIN EVENT\\APPROVAL};
+
+      \draw[flowarrow] (a1.east) -- (a2.west);
+      \draw[flowarrow] (a2.east) -- (a3.west);
+      \draw[flowarrow] (a3.east) -- (a4.west);
+      \draw[flowarrow] (a4.east) -- (a5.west);
+
+      \draw[cyan!60,dashed,line width=0.4pt] (0,-0.95) -- (13.45,-0.95);
+
+      \node[lbl] at (0.95,-1.90) {PARTICIPATION\\WORKFLOW};
+
+      \node[stage]    (b1) at (3.30,-1.90)  {{\color{navy}01}\\STUDENT\\REGISTRATION};
+      \node[stagealt] (b2) at (5.60,-1.90)  {{\color{navy}02}\\PARTICIPANT\\MANAGEMENT};
+      \node[stage]    (b3) at (7.90,-1.90)  {{\color{navy}03}\\QR-BASED\\ATTENDANCE};
+      \node[stagealt] (b4) at (10.20,-1.90) {{\color{navy}04}\\ANALYTICS\\\& REPORTS};
+
+      \draw[flowarrow] (b1.east) -- (b2.west);
+      \draw[flowarrow] (b2.east) -- (b3.west);
+      \draw[flowarrow] (b3.east) -- (b4.west);
+
+    \end{tikzpicture}
+
+  \end{beamercolorbox}
+
+  \vspace{0.07cm}
+
+  \begin{columns}[T,onlytextwidth]
+
+    
+    \begin{column}{0.32\textwidth}
+
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm]{studentbox}
+        \colorbox{navy}{\parbox[c][0.43cm][c]{\dimexpr\linewidth-0.24cm\relax}{
+          \hspace{0.10cm}\textcolor{white}{\bfseries\small STUDENT PORTAL}
+        }}
+        \\[3pt]
+
+        {\scriptsize
+        \textcolor{cyan}{\textbullet}\ Account registration and login\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Personal dashboard\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Browse approved events\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Search and filter events\\[2pt]
+        \textcolor{cyan}{\textbullet}\ View event details\\
+        \textcolor{cyan}{\textbullet}\ Register for events\\
+        \textcolor{cyan}{\textbullet}\ View and cancel registrations\\}
+      \end{beamercolorbox}
+
+    \end{column}
+
+    \begin{column}{0.32\textwidth}
+
+    \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm]{organizerbox}
+        \colorbox{navy}{\parbox[c][0.43cm][c]{\dimexpr\linewidth-0.24cm\relax}{
+          \hspace{0.10cm}\textcolor{white}{\bfseries\small ORGANIZER PORTAL}
+        }}
+        \\[3pt]
+
+        {\scriptsize
+        \textcolor{purple}{\textbullet}\ Organizer account and dashboard\\[2pt]
+        \textcolor{purple}{\textbullet}\ Create and submit events\\[2pt]
+        \textcolor{purple}{\textbullet}\ Edit and manage own events\\[2pt]
+        \textcolor{purple}{\textbullet}\ Track event status\\[2pt]
+        \textcolor{purple}{\textbullet}\ View registered participants\\
+        \textcolor{purple}{\textbullet}\ Search and filter participants\\
+        \textcolor{purple}{\textbullet}\ Export participant information\\}
+      \end{beamercolorbox}
+    \end{column}
+
+    
+    \begin{column}{0.32\textwidth}
+
+
+\begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm]{studentbox}
+        \colorbox{navy}{\parbox[c][0.43cm][c]{\dimexpr\linewidth-0.24cm\relax}{
+          \hspace{0.10cm}\textcolor{white}{\bfseries\small ADMIN PORTAL}
+        }}
+        \\[3pt]
+
+        {\scriptsize
+        \textcolor{cyan}{\textbullet}\ Centralized admin dashboard\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Manage student accounts\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Manage organizer accounts\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Approve/reject organizer requests\\[2pt]
+        \textcolor{cyan}{\textbullet}\ Review and approve events\\
+        \textcolor{cyan}{\textbullet}\ Manage venues\\
+        \textcolor{cyan}{\textbullet}\ Manage event categories\\}
+      \end{beamercolorbox}
+
+    \end{column}
+
+  \end{columns}
+
+  \vfill
+  \basedecor
+
+\end{frame}
+
+
+\newcommand{\tech}[3]{%
+  \textcolor{#1}{\textbullet}\ {\bfseries\scriptsize\textcolor{navy}{#2}}\\[-1pt]
+  \hspace{0.30cm}{\tiny\textcolor{muted}{#3}}\\[1.5pt]}
+
+\newcommand{\techhead}[2]{%
+  \colorbox{#1}{\parbox[c][0.43cm][c]{\dimexpr\linewidth-0.24cm\relax}{%
+    \hspace{0.10cm}\textcolor{white}{\bfseries\small #2}}}\\[4pt]}
+
+%================================================
+% SLIDE 4: TECHNOLOGY STACK
+%================================================
+\begin{frame}[plain]
+  \topbar{Technology Stack}{MULTYVERS}
+
+  \vspace{0.12cm}
+  \begin{columns}[T,onlytextwidth]
+
+  
+    \begin{column}{0.225\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.08cm]{studentbox}
+        \techhead{navy}{BACKEND}
+        \vspace{0.5cm}
+        \tech{cyan}{Python}{Core application logic}
+        \vspace{0.5cm}
+        \tech{cyan}{Flask + Blueprints}{Modular routes \& app factory}
+        \vspace{0.5cm}
+        \tech{cyan}{Flask-Login}{Session \& login management}
+        \vspace{0.5cm}        
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.0333\textwidth}\end{column}
+
+   
+    \begin{column}{0.225\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.08cm]{organizerbox}
+        \techhead{purple!85!navy}{FRONTEND}
+        \tech{purple}{HTML}{Page structure}
+        \tech{purple}{CSS}{Portal layouts \& styling}
+        \tech{purple}{JavaScript}{Client-side interactivity}
+        \tech{purple}{Jinja2 Templates}{Dynamic server-side rendering}
+        \tech{purple}{UI Components}{Reusable template parts}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.0333\textwidth}\end{column}
+
+   
+    \begin{column}{0.225\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.08cm]{studentbox}
+        \techhead{navy}{DATABASE}
+        \vspace{1.25cm}
+        \tech{cyan}{SQLite}{Relational data store}
+        \vspace{0.5cm}
+        \tech{cyan}{SQL}{Parameterized queries}
+        \vspace{1.25cm}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.0333\textwidth}\end{column}
+
+  
+    \begin{column}{0.225\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.08cm]{organizerbox}
+        \techhead{purple!85!navy}{LIBS \& TOOLS}
+        \tech{purple}{Git \& GitHub}{Version control}
+        \tech{purple}{VS Code, Git Bash}{Development environment}
+        \tech{purple}{pytest}{Automated functional tests}
+        \tech{purple}{Python venv}{Isolated dependencies}
+        \tech{purple}{qrcode + Pillow}{QR code generation}
+      \end{beamercolorbox}
+    \end{column}
+
+  \end{columns}
+
+  \vspace{0.12cm}
+
+  \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm,center]{solutionbox}
+    \begin{tikzpicture}[
+      node distance=0.6cm,
+      flow/.style={
+        rounded corners=3pt,
+        fill=white,
+        draw=cyan,
+        line width=0.7pt,
+        minimum height=0.62cm,
+        minimum width=3.3cm,
+        align=center,
+        font=\scriptsize\bfseries,
+        text=navy,
+        inner sep=2pt
+      },
+      link/.style={->, >=latex, line width=0.9pt, draw=cyan}
+    ]
+      \node[flow] (b) at (0,0)    {Browser\\[-1pt]{\tiny\mdseries HTML $\cdot$ CSS $\cdot$ JS}};
+      \node[flow] (f) at (4.4,0)  {Flask Application\\[-1pt]{\tiny\mdseries Blueprints $\cdot$ Jinja2 $\cdot$ Flask-Login}};
+      \node[flow] (d) at (8.8,0)  {SQLite Database\\[-1pt]{\tiny\mdseries 6 relational tables}};
+
+      \draw[link] (b.east) -- node[above,font=\tiny,text=cream]{request} (f.west);
+      \draw[link] (f.east) -- node[above,font=\tiny,text=cream]{SQL} (d.west);
+    \end{tikzpicture}
+  \end{beamercolorbox}
+
+  \vfill
+  \basedecor
+\end{frame}
+
+\newcommand{\mone}{Pranav Tej}
+\newcommand{\mtwo}{Karthik}
+\newcommand{\mthree}{Teja}
+\newcommand{\mfour}{Sankar}
+\newcommand{\mfive}{Rupesh Babu}
+
+\newcommand{\rolehead}[2]{%
+  \colorbox{#1}{\parbox[c][0.40cm][c]{\dimexpr\linewidth-0.24cm\relax}{%
+    \hspace{0.08cm}\textcolor{white}{\bfseries\fontsize{7}{8.5}\selectfont #2}}}\\[3pt]}
+
+\newcommand{\roleitem}[2]{%
+  \textcolor{#1}{\textbullet}\ {\fontsize{6.8}{8}\selectfont #2}\\[1pt]}
+
+%================================================
+% SLIDE 5: TEAM MEMBERS & CONTRIBUTIONS
+%================================================
+\begin{frame}[plain]
+  \topbar{Team Members \& Contributions}{MULTYVERS}
+
+  \vspace{0.12cm}
+
+  
+  \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm]{studentbox}
+    \rolehead{navy}{\mone\ \,|\, BACKEND \& APPLICATION INTEGRATION}
+    \begin{columns}[T,onlytextwidth]
+      \begin{column}{0.48\textwidth}
+        \roleitem{cyan}{Core Flask backend, application structure and Blueprints}
+        \roleitem{cyan}{Authentication and role-based authorization}
+        \roleitem{cyan}{SQLite connectivity and backend operations}
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \roleitem{cyan}{Developed the overall application UI and common structure}
+        \roleitem{cyan}{Admin Portal development and backend integration}
+        \roleitem{cyan}{Integrated all three portals; coordinated development}
+      \end{column}
+    \end{columns}
+  \end{beamercolorbox}
+
+  \vspace{-0.22cm}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.485\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm]{organizerbox}
+        \rolehead{purple!85!navy}{\mtwo\ \,|\, VENUE MANAGEMENT DEVELOPER}
+        \roleitem{purple}{Venue management: create, edit, search and delete venues}
+        \roleitem{purple}{Venue availability checking and conflict detection}
+        \roleitem{purple}{Integrated the Student Portal}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.485\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm]{adminbox}
+        \rolehead{cyan!85!navy}{\mthree\ \,|\, PARTICIPANT MANAGEMENT DEVELOPER}
+        \roleitem{cyan}{Participant directory with search, filters and pagination}
+        \roleitem{cyan}{Participant CSV export}
+        \roleitem{cyan}{Integrated the Organizer Portal}
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.30cm}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.485\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm]{adminbox}
+        \rolehead{cyan!85!navy}{\mfour\ \,|\, QR ATTENDANCE DEVELOPER}
+        \roleitem{cyan}{QR code generation and attendance check-in validation}
+        \roleitem{cyan}{Attendance records; invalid and duplicate entry prevention}
+        \roleitem{cyan}{Integrated the Organizer Portal}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.485\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,sep=0.06cm]{organizerbox}
+        \rolehead{purple!85!navy}{\mfive\ \,|\, ANALYTICS DEVELOPER \& TESTING}
+        \roleitem{purple}{Organizer analytics dashboard and exports}
+        \roleitem{purple}{Project report (LaTeX) and Beamer presentation}
+        \roleitem{purple}{Application testing and pytest verification}
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+
+  \vfill
+  \basedecor
+\end{frame}
+
+\begin{frame}[plain]
+  \vfill
+  \begin{center}
+    \begin{tikzpicture}
+      \node[fill=navy,rounded corners=5pt,
+            minimum width=0.82\paperwidth,
+            minimum height=1.75cm,
+            align=center,
+            inner xsep=0.30cm] (title) {
+        {\color{white}\fontsize{34}{40}\selectfont\bfseries THANK YOU}
+      };
+      \draw[cyan,line width=1.5pt]
+        ([xshift=-5.1cm,yshift=-0.10cm]title.south) --
+        ([xshift=5.1cm,yshift=-0.10cm]title.south);
+    \end{tikzpicture}
+  \end{center}
+  \vfill
+  \basedecor
+\end{frame}
+
+\end{document}

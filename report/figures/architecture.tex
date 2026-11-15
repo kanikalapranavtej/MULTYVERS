@@ -1,0 +1,52 @@
+\begin{tikzpicture}[
+  font=\small, >=Latex, node distance=6mm,
+  box/.style={draw=black!70, rounded corners=2pt, align=center, minimum height=9mm, inner sep=4pt, fill=white},
+  layer/.style={draw=black!45, dashed, rounded corners=3pt, inner sep=7pt},
+  lab/.style={font=\scriptsize\itshape, text=black!70}
+]
+% Users
+\node[box, fill=blue!6, text width=3.0cm] (stu) {Student\\browser};
+\node[box, fill=blue!6, text width=3.0cm, right=4mm of stu] (org) {Organizer\\browser};
+\node[box, fill=blue!6, text width=3.0cm, right=4mm of org] (adm) {Admin\\browser};
+
+% Frontend
+\node[box, text width=4.6cm, below=14mm of org] (tpl) {Jinja2 templates\\(\texttt{base.html}, navbar, portal pages)};
+\node[box, text width=3.2cm, left=6mm of tpl] (css) {CSS\\\scriptsize(\texttt{static/css})};
+\node[box, text width=3.2cm, right=6mm of tpl] (js) {JavaScript\\\scriptsize(\texttt{static/js}, \texttt{fetch})};
+
+% Flask
+\node[box, text width=3.6cm, below=14mm of tpl, xshift=-4.1cm] (ext) {Extensions\\\scriptsize Flask-Login, CSRFProtect};
+\node[box, text width=3.6cm, right=6mm of ext] (bp) {Blueprints\\\scriptsize 16 blueprints, \texttt{create\_app()}};
+\node[box, text width=3.6cm, right=6mm of bp] (auth) {Authorization\\\scriptsize\texttt{role\_required(...)}};
+
+% Logic
+\node[box, text width=5.4cm, below=12mm of bp] (logic) {Application logic\\\scriptsize route functions: validation, business rules, transactions};
+\node[box, text width=3.8cm, left=6mm of logic] (qr) {Helpers\\\scriptsize QR (\texttt{qrcode}), CSV, signed tokens};
+\node[box, text width=3.2cm, right=6mm of logic] (mod) {Models\\\scriptsize\texttt{User} class};
+
+% Data
+\node[box, text width=4.6cm, below=12mm of logic] (dbl) {Database layer\\\scriptsize\texttt{get\_db()}, parameterised SQL};
+\node[box, fill=black!6, text width=4.6cm, below=10mm of dbl] (sql) {SQLite\\\scriptsize\texttt{database/multyvers.db}};
+
+% layers
+\begin{scope}[on background layer]
+ \node[layer, fit=(tpl)(css)(js), label={[lab, fill=white, anchor=south west, inner sep=1pt]north west:Frontend (HTML/CSS/JS)}] {};
+ \node[layer, fit=(ext)(bp)(auth), label={[lab, fill=white, anchor=south west, inner sep=1pt]north west:Flask application}] {};
+ \node[layer, fit=(logic)(qr)(mod), label={[lab, fill=white, anchor=south west, inner sep=1pt]north west:Server-side logic}] {};
+ \node[layer, fit=(dbl)(sql), label={[lab, fill=white, anchor=south west, inner sep=1pt]north west:Data}] {};
+\end{scope}
+
+% request flow
+\draw[->, thick] (org.south) -- node[right, lab]{HTTP request} (tpl.north);
+\draw[->, thick] (tpl.south) -- node[right, lab, pos=.35]{routed by URL} (bp.north);
+\draw[->, thick] (bp.south) -- (logic.north);
+\draw[->, thick] (logic.south) -- (dbl.north);
+\draw[->, thick] (dbl.south) -- (sql.north);
+\draw[->] (ext) -- (bp);
+\draw[->] (bp) -- (auth);
+\draw[->] (logic) -- (qr);
+\draw[->] (logic) -- (mod);
+% response flow
+\draw[<-, dashed, thick, black!60] ([xshift=-14mm]org.south) -- ++(0,-6mm) -| ([xshift=-2.2cm]tpl.north) ;
+\node[lab, anchor=east] at ([xshift=-2.5cm, yshift=7mm]tpl.north) {HTML page / JSON};
+\end{tikzpicture}

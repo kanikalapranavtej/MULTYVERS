@@ -1,0 +1,36 @@
+\begin{tikzpicture}[font=\scriptsize, >=Latex,
+ ent/.style={draw=black!70, fill=white, inner sep=0pt},
+ rel/.style={draw=black!60, thick},
+ card/.style={font=\scriptsize\bfseries, fill=white, inner sep=1.2pt}]
+\newcommand{\entity}[4]{\node[ent] (#1) at (#2) {\begin{tabular}{@{\hspace{2pt}}p{4.3cm}@{}}
+  \multicolumn{1}{@{}c@{}}{\cellcolor{blue!10}\rule{0pt}{3.4mm}\textbf{\texttt{#3}}}\\\hline
+  \rule{0pt}{3mm}#4\\[1pt]\end{tabular}};}
+\entity{users}{0,0}{users}{\textbf{PK} user\_id\\ name\\ email \textit{(UNIQUE, NOCASE)}\\ password\_hash\\ role \textit{(CHECK: student/organizer/admin)}\\ created\_at\\ is\_active \textit{(CHECK 0/1)}\\ approval\_status \textit{(CHECK 3 values)}}
+\entity{events}{7.2,0}{events}{\textbf{PK} event\_id\\ title, description\\ \textbf{FK} organizer\_id $\rightarrow$ users\\ \textbf{FK} category\_id $\rightarrow$ categories\\ \textbf{FK} venue\_id $\rightarrow$ venues\\ starts\_at, ends\_at\\ registration\_deadline\\ capacity \textit{(CHECK $>0$)}\\ status \textit{(CHECK 5 values)}\\ created\_at\\ \textit{CHECK (ends\_at $>$ starts\_at)}}
+\entity{categories}{7.2,5.3}{categories}{\textbf{PK} category\_id\\ category\_name \textit{(UNIQUE)}\\ description}
+\entity{venues}{14.4,0}{venues}{\textbf{PK} venue\_id\\ venue\_name \textit{(UNIQUE)}\\ location\\ capacity \textit{(CHECK $>0$)}}
+\entity{regs}{7.2,-6.3}{registrations}{\textbf{PK} registration\_id\\ \textbf{FK} user\_id $\rightarrow$ users\\ \textbf{FK} event\_id $\rightarrow$ events\\ status \textit{(confirmed/cancelled)}\\ registered\_at\\ \textit{UNIQUE (user\_id, event\_id)}}
+\entity{att}{0,-6.5}{attendance}{\textbf{PK} attendance\_id\\ \textbf{FK} registration\_id \textit{(UNIQUE)}\\ \textbf{FK} event\_id $\rightarrow$ events\\ \textbf{FK} user\_id $\rightarrow$ users\\ \textbf{FK} marked\_by $\rightarrow$ users\\ marked\_at\\ method \textit{(CHECK qr/manual)}\\ \textit{UNIQUE (event\_id, user\_id)}}
+\draw[rel] (users.east) -- (events.west);
+\node[card] at ($(users.east)!0.12!(events.west)$) {1};
+\node[card] at ($(users.east)!0.88!(events.west)$) {N};
+\node[font=\scriptsize\itshape,above] at ($(users.east)!0.5!(events.west)$) {organises};
+\draw[rel] (categories.south) -- (events.north);
+\node[card] at ($(categories.south)!0.15!(events.north)$) {1};
+\node[card] at ($(categories.south)!0.85!(events.north)$) {N};
+\draw[rel] (venues.west) -- (events.east);
+\node[card] at ($(venues.west)!0.12!(events.east)$) {1};
+\node[card] at ($(venues.west)!0.88!(events.east)$) {N};
+\draw[rel] (events.south) -- (regs.north);
+\node[card] at ($(events.south)!0.12!(regs.north)$) {1};
+\node[card] at ($(events.south)!0.88!(regs.north)$) {N};
+\draw[rel] (users.south east) -- (regs.north west);
+\node[card] at ($(users.south east)!0.12!(regs.north west)$) {1};
+\node[card] at ($(users.south east)!0.88!(regs.north west)$) {N};
+\draw[rel] (att.east) -- (regs.west);
+\node[card] at ($(att.east)!0.1!(regs.west)$) {1};
+\node[card] at ($(att.east)!0.9!(regs.west)$) {1};
+\draw[rel] (users.south) -- (att.north);
+\node[card] at ($(users.south)!0.1!(att.north)$) {1};
+\node[card] at ($(users.south)!0.9!(att.north)$) {N};
+\end{tikzpicture}
