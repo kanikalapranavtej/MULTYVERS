@@ -551,8 +551,6 @@ The current development configuration has fallback values, including a default a
 admin@multyvers.in
 ```
 
-Never commit real secrets or share them in public issue reports. Keep `.env` and other secret-bearing files out of Git.
-
 ---
 
 ## 15. Git and collaborative development
@@ -598,4 +596,12 @@ The repository's `.gitignore` excludes common local files such as virtual enviro
 
 **GitHub:** https://github.com/kanikalapranavtej/MULTYVERS
 
+
+************************************************
+DEFAULT ADMIN LOGIN CREDENTIALS :
+
+Email : admin@multyvers.in
+password : password
+
+*************************************************
 
